@@ -1,7 +1,22 @@
 import React from "react";
+import Banner from "../../Components/Home/Banner/Banner";
+import LatestResolvedIssue from "../../Components/Home/ResolvedIssue/LatestResolvedIssue";
+import Features from "../../Components/Home/Features/Features";
+import HowItWorks from "../../Components/Home/HowItWorks/HowItWorks";
+import GetStarted from "../../Components/Home/GetStarted/GetStarted";
+import Testimonials from "../../Components/Home/Testimonials/Testimonials";
 
 const Home = () => {
-  return <div>Home Page</div>;
+  return (
+    <div>
+      <Banner />
+      <LatestResolvedIssue />
+      <Features />
+      <HowItWorks />
+      <Testimonials />
+      <GetStarted />
+    </div>
+  );
 };
 
 export default Home;
