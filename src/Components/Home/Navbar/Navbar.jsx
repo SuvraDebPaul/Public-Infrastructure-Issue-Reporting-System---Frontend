@@ -1,10 +1,13 @@
 import { Link } from "react-router";
-import MyLink from "../../Components/Home/Navbar/MyNavLinks/MyLink";
-import ThemeController from "../../Components/Home/Navbar/ThemeController";
-import BoxContainer from "../../Util/BoxContainer";
+import MyLink from "./MyNavLinks/MyLink";
+import ThemeController from "./ThemeController";
+import BoxContainer from "../../../Util/BoxContainer";
 import { FcOnlineSupport } from "react-icons/fc";
+import useAuth from "../../../Hooks/useAuth";
+import LoadingSpinner from "../../../Util/LoadingSpinner";
 
 const Navbar = () => {
+  const { user, logOut } = useAuth();
   const allLinks = [
     {
       path: "/",
@@ -25,7 +28,6 @@ const Navbar = () => {
   ];
 
   const DashboardLinks = [];
-
   return (
     <section className="bg-base-100 shadow-sm">
       <BoxContainer>
@@ -44,7 +46,6 @@ const Navbar = () => {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  {" "}
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -91,25 +92,42 @@ const Navbar = () => {
                 className="btn btn-ghost btn-circle avatar"
               >
                 <div className="w-10 rounded-full">
-                  <img
-                    alt="Tailwind CSS Navbar component"
-                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                  />
+                  {user ? (
+                    <img
+                      alt={user?.displayName}
+                      src={user?.photoURL}
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <img
+                      alt="Sample Profile Photo"
+                      src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                    />
+                  )}
                 </div>
               </div>
               <ul
                 tabIndex="-1"
-                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
+                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-100 mt-3 w-52 p-2 shadow"
               >
                 <li>
-                  <a className="justify-between">Dashboard</a>
+                  <a>User: {user ? user.displayName : "User Name"}</a>
                 </li>
+
                 <li>
-                  <a>Login</a>
+                  <Link to="/dashboard" className="justify-between">
+                    Dashboard
+                  </Link>
                 </li>
-                <li>
-                  <a>Logout</a>
-                </li>
+                {user ? (
+                  <li>
+                    <a onClick={logOut}>Logout</a>
+                  </li>
+                ) : (
+                  <li>
+                    <Link to="/login">Login</Link>
+                  </li>
+                )}
               </ul>
             </div>
           </div>

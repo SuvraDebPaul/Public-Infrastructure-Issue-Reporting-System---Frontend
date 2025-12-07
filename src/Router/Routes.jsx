@@ -5,6 +5,14 @@ import All_Issues from "../Pages/All-Issues/All_Issues";
 import IssueDetails from "../Pages/All-Issues/IssueDetails";
 import ErrorPage from "../Pages/ErrorPage/ErrorPage";
 import LoadingSpinner from "../Util/LoadingSpinner";
+import AuthLayout from "../Layouts/AuthLayout";
+import Login from "../Pages/Auth/Login";
+import Register from "../Pages/Auth/Register";
+import DashLayout from "../Layouts/DashLayout";
+import PrivateRoutes from "./PrivateRoutes";
+import Dashboard from "../Pages/Dashboard/Dashboard";
+import ReportIssue from "../Pages/Report-Issue/ReportIssue";
+import MyIssues from "../Pages/My-Issues/MyIssues";
 
 export const router = createBrowserRouter([
   {
@@ -16,6 +24,8 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
+        loader: () =>
+          fetch("/public/dummyIssues.json").then((res) => res.json()),
       },
       {
         path: "/all-issues",
@@ -24,6 +34,58 @@ export const router = createBrowserRouter([
       {
         path: "/issue/:id",
         element: <IssueDetails />,
+      },
+    ],
+  },
+  {
+    path: "/",
+    element: <AuthLayout />,
+    errorElement: <ErrorPage />,
+    hydrateFallbackElement: <LoadingSpinner />,
+    children: [
+      {
+        path: "login",
+        element: <Login></Login>,
+      },
+      {
+        path: "register",
+        element: <Register></Register>,
+      },
+    ],
+  },
+  {
+    path: "/",
+    element: (
+      <PrivateRoutes>
+        <DashLayout />
+      </PrivateRoutes>
+    ),
+
+    hydrateFallbackElement: <LoadingSpinner />,
+    children: [
+      {
+        path: "dashboard",
+        element: (
+          <PrivateRoutes>
+            <Dashboard />
+          </PrivateRoutes>
+        ),
+      },
+      {
+        path: "/report-issue",
+        element: (
+          <PrivateRoutes>
+            <ReportIssue />
+          </PrivateRoutes>
+        ),
+      },
+      {
+        path: "my-issues",
+        element: (
+          <PrivateRoutes>
+            <MyIssues />
+          </PrivateRoutes>
+        ),
       },
     ],
   },

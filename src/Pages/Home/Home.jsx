@@ -5,12 +5,15 @@ import Features from "../../Components/Home/Features/Features";
 import HowItWorks from "../../Components/Home/HowItWorks/HowItWorks";
 import GetStarted from "../../Components/Home/GetStarted/GetStarted";
 import Testimonials from "../../Components/Home/Testimonials/Testimonials";
+import { useLoaderData } from "react-router";
 
 const Home = () => {
+  const resolvedIssue = useLoaderData();
+
   return (
     <div>
       <Banner />
-      <LatestResolvedIssue />
+      <LatestResolvedIssue resolvedIssue={resolvedIssue} />
       <Features />
       <HowItWorks />
       <Testimonials />

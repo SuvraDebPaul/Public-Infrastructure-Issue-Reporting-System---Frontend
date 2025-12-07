@@ -1,7 +1,7 @@
 const GetStarted = () => {
   return (
     <div
-      className="h-[400px] overflow-hidden bg-cover bg-center bg-no-repeat mb-10 text-white flex flex-col justify-center items-center gap-6"
+      className="h-[400px] overflow-hidden bg-cover bg-center bg-no-repeat mt-10 text-white flex flex-col justify-center items-center gap-6"
       style={{ backgroundImage: "url(/get-started.jpg)" }}
     >
       <h2 className="text-4xl font-bold">See a Problem? Report It Now</h2>

@@ -1,9 +1,9 @@
 import React from "react";
-import { Outlet } from "react-router";
 import Navbar from "../Components/Home/Navbar/Navbar";
+import { Outlet } from "react-router";
 import Footer from "../Components/Home/Footer/Footer";
 
-const MainLayout = () => {
+const AuthLayout = () => {
   return (
     <>
       <header>
@@ -19,4 +19,4 @@ const MainLayout = () => {
   );
 };
 
-export default MainLayout;
+export default AuthLayout;
