@@ -5,12 +5,18 @@ import { RouterProvider } from "react-router";
 import { router } from "./Router/Routes";
 import AuthProvider from "./Provider/AuthProvider";
 import { Toaster } from "react-hot-toast";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// Create a client
+const queryClient = new QueryClient();
 
 createRoot(document.getElementById("piirs")).render(
   <StrictMode>
-    <AuthProvider>
-      <RouterProvider router={router} />
-      <Toaster position="top-right" reverseOrder={false} />
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <RouterProvider router={router} />
+        <Toaster position="top-right" reverseOrder={false} />
+      </AuthProvider>
+    </QueryClientProvider>
   </StrictMode>
 );

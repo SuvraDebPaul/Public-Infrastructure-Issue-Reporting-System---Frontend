@@ -4,16 +4,47 @@ import useAuth from "../../Hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { Mail, Lock, User, Image as ImageIcon } from "lucide-react";
 import { imageURL } from "../../Utilities";
+import axios from "axios";
+import { useMutation } from "@tanstack/react-query";
+import LoadingSpinner from "../../Util/LoadingSpinner";
+import toast from "react-hot-toast";
 
 const ReportIssue = () => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
+
+  const {
+    isLoading,
+    mutateAsync,
+    reset: mutationReset,
+  } = useMutation({
+    mutationFn: async (payload) => {
+      return await axios.post(
+        `${import.meta.env.VITE_API_URL}/report-issue`,
+        payload
+      );
+    },
+    onSuccess: (data) => {
+      console.log("ON SUCCESS", data);
+      //show toast
+      toast.success("Issues Submitted Successfully");
+      mutationReset();
+      //show query key invalidate
+    },
+    onError: (error) => {
+      console.log("ON ERROR", error);
+    },
+    onMutate: (payload) => {
+      console.log("I Will Post This Data", payload);
+    },
+  });
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm();
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const { tittle, category, location, description, issueImage } = data;
     const issueImageURL = imageURL(issueImage);
     const newIssue = {
@@ -41,7 +72,12 @@ const ReportIssue = () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+    await mutateAsync(newIssue);
+
+    reset();
   };
+
+  if (isLoading) return <LoadingSpinner />;
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 pt-4 pb-10">
       <div className="p-8">
@@ -154,10 +190,10 @@ const ReportIssue = () => {
             type="submit"
             className="w-full py-2 rounded-lg bg-indigo-600 text-white font-medium shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
           >
-            {loading ? (
+            {isLoading ? (
               <TbFidgetSpinner className="animate-spin m-auto" />
             ) : (
-              "Create Account"
+              "Submit Your Issue"
             )}
           </button>
         </form>

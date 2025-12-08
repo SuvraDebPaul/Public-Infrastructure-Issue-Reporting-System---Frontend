@@ -1,6 +1,7 @@
 import axios from "axios";
 
 export const imageURL = async (photo) => {
+  if (photo.length === 0) return;
   const imageFile = photo[0];
   const formData = new FormData();
   formData.append("image", imageFile);
