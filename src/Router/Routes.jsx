@@ -32,8 +32,12 @@ export const router = createBrowserRouter([
         element: <All_Issues />,
       },
       {
-        path: "/issue/:id",
-        element: <IssueDetails />,
+        path: "/issues/:id",
+        element: (
+          <PrivateRoutes>
+            <IssueDetails />
+          </PrivateRoutes>
+        ),
       },
     ],
   },

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { format } from "date-fns";
 
 export const imageURL = async (photo) => {
   if (photo.length === 0) return;
@@ -15,4 +16,8 @@ export const imageURL = async (photo) => {
   } catch (err) {
     console.log(err);
   }
+};
+
+export const fotmateDate = (date) => {
+  return format(new Date(date), "dd/MM/yyyy");
 };

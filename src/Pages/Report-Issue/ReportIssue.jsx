@@ -23,8 +23,8 @@ const ReportIssue = () => {
         payload
       );
     },
-    onSuccess: (data) => {
-      console.log("ON SUCCESS", data);
+    onSuccess: () => {
+      //console.log("ON SUCCESS", data);
       //show toast
       toast.success("Issues Submitted Successfully");
       mutationReset();
@@ -33,9 +33,9 @@ const ReportIssue = () => {
     onError: (error) => {
       console.log("ON ERROR", error);
     },
-    onMutate: (payload) => {
-      console.log("I Will Post This Data", payload);
-    },
+    // onMutate: (payload) => {
+    //   console.log("I Will Post This Data", payload);
+    // },
   });
   const {
     register,
