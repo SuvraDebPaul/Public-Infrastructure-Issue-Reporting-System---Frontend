@@ -1,7 +1,34 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import toast from "react-hot-toast";
 import { MdOutlineHowToVote } from "react-icons/md";
 import { Link } from "react-router";
+import useAuth from "../../../Hooks/useAuth";
 const IssueCard = ({ issues }) => {
-  console.log(issues.image.length);
+  const { user } = useAuth();
+  // console.log(issues.image.length);
+  const queryClient = useQueryClient();
+  const upvoteMutation = useMutation({
+    mutationFn: async ({ id, userEmail }) => {
+      console.log(id, userEmail);
+      return await axios.put(
+        `${import.meta.env.VITE_API_URL}/issues/upvote/${id}`,
+        { userEmail }
+      );
+    },
+    onSuccess: () => {
+      toast.success("Upvote Updated Successfully");
+      queryClient.invalidateQueries(["issue"]);
+    },
+    onError: (error) => {
+      console.log("ON ERROR", error);
+      toast.error(error.message);
+    },
+  });
+  const handleUpvotes = async (issue) => {
+    console.log(issue._id);
+    upvoteMutation.mutate({ id: issue._id, userEmail: user.email });
+  };
   return (
     <>
       <div className="card bg-base-100 shadow-sm p-4">
@@ -25,7 +52,10 @@ const IssueCard = ({ issues }) => {
             <div className="font-semibold py-4 rounded-sm badge badge-info capitalize">
               Status: {issues?.status}
             </div>
-            <button className="btn btn-sm btn-primary capitalize">
+            <button
+              onClick={() => handleUpvotes(issues)}
+              className="btn btn-sm btn-primary capitalize"
+            >
               <MdOutlineHowToVote size={18} /> {issues?.upvotes}
             </button>
           </div>
