@@ -1,15 +1,23 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import LoadingSpinner from "../../Util/LoadingSpinner";
 import BoxContainer from "../../Util/BoxContainer";
 import { fotmateDate } from "../../Utilities";
 import { CiEdit } from "react-icons/ci";
 import { RiDeleteBin2Line } from "react-icons/ri";
 import { SiBoosty } from "react-icons/si";
+import { useState } from "react";
+import BoostModal from "../../Components/Modal/BoostModal";
+import EditModal from "../../Components/Modal/EditModal";
+import Swal from "sweetalert2";
 
 const IssueDetails = () => {
   const { id } = useParams();
+  let [isBoostOpen, setIsBoostOpen] = useState(false);
+  let [isEditOpen, setIsEditOpen] = useState(false);
+  const navigate = useNavigate();
+
   const { isLoading, data: issue = [] } = useQuery({
     queryKey: ["issue", id],
     queryFn: async () => {
@@ -19,7 +27,39 @@ const IssueDetails = () => {
       return result.data;
     },
   });
-  console.log(issue.timeline);
+  // console.log(issue.timeline);
+
+  const closeBoostModal = () => {
+    setIsBoostOpen(false);
+  };
+  const closeEditModal = () => {
+    setIsEditOpen(false);
+  };
+
+  const queryClient = useQueryClient();
+
+  // React Query mutation for deleting
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      return await axios.delete(`${import.meta.env.VITE_API_URL}/issues/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["issues"]); // refresh issue list
+      Swal.fire({
+        title: "Deleted!",
+        text: "Your issue has been deleted.",
+        icon: "success",
+      });
+      navigate("/all-issues");
+    },
+    onError: () => {
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to delete issue.",
+        icon: "error",
+      });
+    },
+  });
 
   if (isLoading) return <LoadingSpinner />;
   return (
@@ -39,6 +79,9 @@ const IssueDetails = () => {
         <div className="flex-1 space-y-3">
           <h2 className="text-xl capitalize font-semibold">
             Issue Title: {issue.tittle}
+            {issue.boosted && (
+              <span className="badge badge-error ml-5">Boosted Issue</span>
+            )}
           </h2>
           <h2 className="text-xl capitalize">
             Issue Category: {issue.category}
@@ -70,16 +113,51 @@ const IssueDetails = () => {
           <p className="text-xl font-bold">Description</p>
           <p>{issue.description}</p>
           <div className="mt-10 text-lg">
-            <button className="btn btn-primary">
+            <button
+              className={`btn btn-primary ${
+                issue.status !== "pending" && "btn-disabled"
+              }`}
+              onClick={() => setIsEditOpen(true)}
+            >
               <CiEdit size={20} /> Edit
             </button>
-            <button className="btn btn-primary mx-5">
+            <button
+              className="btn btn-primary mx-5"
+              onClick={() => {
+                Swal.fire({
+                  title: "Are you sure?",
+                  text: "You won't be able to revert this!",
+                  icon: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#3085d6",
+                  cancelButtonColor: "#d33",
+                  confirmButtonText: "Yes, delete it!",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    deleteMutation.mutate(issue._id);
+                  }
+                });
+              }}
+            >
               <RiDeleteBin2Line size={20} />
               Delete
             </button>
-            <button className="btn btn-primary">
+            <button
+              onClick={() => setIsBoostOpen(true)}
+              className={`btn btn-primary ${issue.boosted && "btn-disabled"}`}
+            >
               <SiBoosty size={20} /> Boost
             </button>
+            <BoostModal
+              closeModal={closeBoostModal}
+              isOpen={isBoostOpen}
+              issue={issue}
+            />
+            <EditModal
+              closeModal={closeEditModal}
+              isOpen={isEditOpen}
+              issue={issue}
+            />
           </div>
           <hr className="my-6" />
           <div className="">
@@ -98,6 +176,7 @@ const IssueDetails = () => {
                 .map((entry, i) => (
                   <li key={i} className="step step-primary">
                     <div className="text-left py-10">
+                      {" "}
                       {/* Status + Badge */}
                       <span className="font-semibold text-lg flex items-center gap-2 capitalize">
                         {entry?.status}
@@ -116,12 +195,10 @@ const IssueDetails = () => {
                           {entry?.status}
                         </span>
                       </span>
-
                       {/* Message */}
                       <p className="text-sm mt-1">
                         <strong>Message:</strong> {entry?.message}
                       </p>
-
                       {/* Date */}
                       <p className="text-sm mt-1">
                         <strong>Date:</strong> {fotmateDate(entry?.createdAt)}

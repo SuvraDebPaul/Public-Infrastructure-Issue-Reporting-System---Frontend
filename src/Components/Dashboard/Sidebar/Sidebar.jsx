@@ -70,12 +70,12 @@ const Sidebar = () => {
               <MenuItem
                 icon={AiOutlineBars}
                 label="My Issues"
-                address="/my-issues"
+                address="my-issues"
               />
               <MenuItem
                 icon={IoCreateOutline}
                 label="Report An Issue"
-                address="/report-issue"
+                address="report-issue"
               />
 
               {/* Role-Based Menu */}
@@ -89,11 +89,7 @@ const Sidebar = () => {
           <div>
             <hr />
 
-            <MenuItem
-              icon={FcSettings}
-              label="Profile"
-              address="/dashboard/profile"
-            />
+            <MenuItem icon={FcSettings} label="Profile" address="profile" />
             <button
               onClick={logOut}
               className="flex cursor-pointer w-full items-center px-4 py-2 mt-5 text-gray-600 hover:bg-gray-300   hover:text-gray-700 transition-colors duration-300 transform"

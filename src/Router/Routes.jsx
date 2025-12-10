@@ -13,6 +13,8 @@ import PrivateRoutes from "./PrivateRoutes";
 import Dashboard from "../Pages/Dashboard/Dashboard";
 import ReportIssue from "../Pages/Report-Issue/ReportIssue";
 import MyIssues from "../Pages/My-Issues/MyIssues";
+import Profile from "../Pages/Profile/Profile";
+import PaymentSucess from "../Pages/PaymentSucess/PaymentSucess";
 
 export const router = createBrowserRouter([
   {
@@ -28,68 +30,65 @@ export const router = createBrowserRouter([
           fetch("/public/dummyIssues.json").then((res) => res.json()),
       },
       {
-        path: "/all-issues",
+        path: "all-issues",
         element: <All_Issues />,
       },
       {
-        path: "/issues/:id",
+        path: "issues/:id",
         element: (
           <PrivateRoutes>
             <IssueDetails />
           </PrivateRoutes>
         ),
       },
+      {
+        path: "payment/success",
+        element: <PaymentSucess />,
+      },
     ],
   },
+
+  // AUTH ROUTES
   {
-    path: "/",
+    path: "/auth",
     element: <AuthLayout />,
     errorElement: <ErrorPage />,
     hydrateFallbackElement: <LoadingSpinner />,
     children: [
-      {
-        path: "login",
-        element: <Login></Login>,
-      },
-      {
-        path: "register",
-        element: <Register></Register>,
-      },
+      { path: "login", element: <Login /> },
+      { path: "register", element: <Register /> },
     ],
   },
+
+  // DASHBOARD
   {
-    path: "/",
+    path: "/dashboard",
     element: (
       <PrivateRoutes>
         <DashLayout />
       </PrivateRoutes>
     ),
-
     hydrateFallbackElement: <LoadingSpinner />,
     children: [
       {
-        path: "dashboard",
-        element: (
-          <PrivateRoutes>
-            <Dashboard />
-          </PrivateRoutes>
-        ),
+        index: true,
+        element: <Dashboard />,
       },
       {
-        path: "/report-issue",
-        element: (
-          <PrivateRoutes>
-            <ReportIssue />
-          </PrivateRoutes>
-        ),
+        path: "report-issue",
+        element: <ReportIssue />,
       },
       {
         path: "my-issues",
-        element: (
-          <PrivateRoutes>
-            <MyIssues />
-          </PrivateRoutes>
-        ),
+        element: <MyIssues />,
+      },
+      {
+        path: "my-issues/:id",
+        element: <IssueDetails />, // FIXED!
+      },
+      {
+        path: "profile",
+        element: <Profile />,
       },
     ],
   },
