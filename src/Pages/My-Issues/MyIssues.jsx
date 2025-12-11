@@ -1,4 +1,14 @@
+import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
+import useAuth from "../../Hooks/useAuth";
+import axios from "axios";
+import LoadingSpinner from "../../Util/LoadingSpinner";
+import { fotmateDate } from "../../Utilities";
+import { useNavigate } from "react-router";
+import Swal from "sweetalert2";
+import EditModal from "../../Components/Modal/EditModal";
+import { FaLocationDot } from "react-icons/fa6";
+import { GoDiscussionOutdated } from "react-icons/go";
 
 /* ---------------------------------------------------
    STATUS + CATEGORY COLORS
@@ -14,36 +24,28 @@ const statusColors = {
    MAIN COMPONENT
 -----------------------------------------------------*/
 const MyIssues = () => {
-  /* Dummy User Issues – Replace with API data */
-  const [issues, setIssues] = useState([
-    {
-      id: 1,
-      title: "Street Light Broken",
-      category: "Public Safety",
-      status: "pending",
-      location: "Dhanmondi 27",
-      description: "Street light not working for 3 days.",
-      date: "2025-01-02",
-      upvotes: 10,
-      image: "https://via.placeholder.com/350x200",
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const {
+    isLoading,
+    data: issues = [],
+    refetch,
+  } = useQuery({
+    queryKey: ["issues", user.email],
+    queryFn: async () => {
+      const result = await axios(
+        `${import.meta.env.VITE_API_URL}/all-issues/${user.email}`
+      );
+      return result.data;
     },
-    {
-      id: 2,
-      title: "Garbage Not Collected",
-      category: "Sanitation",
-      status: "in-progress",
-      location: "Mirpur 10",
-      description: "Garbage has piled up in the corner area.",
-      date: "2025-01-05",
-      upvotes: 42,
-      image: "https://via.placeholder.com/350x200",
-    },
-  ]);
+  });
 
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
-  const [editingIssue, setEditingIssue] = useState(null); // modal state
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedIssue, setSelectedIssue] = useState(null);
 
+  if (isLoading) return <LoadingSpinner />;
   /* ---------------------------------------------------
      FILTER LOGIC
   -----------------------------------------------------*/
@@ -57,19 +59,33 @@ const MyIssues = () => {
      HANDLE DELETE ISSUE
   -----------------------------------------------------*/
   const deleteIssue = (id) => {
-    setIssues((prev) => prev.filter((i) => i.id !== id));
-    // TODO: API CALL => await axios.delete(`/issue/${id}`);
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`${import.meta.env.VITE_API_URL}/issues/${id}`);
+          Swal.fire("Deleted!", "Issue removed successfully.", "success");
+          refetch();
+        } catch (error) {
+          Swal.fire("Error", "Unable to delete issue.", error);
+        }
+      }
+    });
   };
 
   /* ---------------------------------------------------
      HANDLE SAVE EDITED ISSUE (Instant UI update!)
   -----------------------------------------------------*/
-  const saveIssue = () => {
-    setIssues((prev) =>
-      prev.map((item) => (item.id === editingIssue.id ? editingIssue : item))
-    );
-    // TODO: API CALL => axios.put(`/issue/${editingIssue.id}`, editingIssue);
-    setEditingIssue(null);
+  const openEditModal = (issue) => {
+    setSelectedIssue(issue);
+    setIsEditOpen(true);
   };
 
   /* ---------------------------------------------------
@@ -113,7 +129,7 @@ const MyIssues = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredIssues.map((issue) => (
           <div
-            key={issue.id}
+            key={issue._id}
             className="border rounded-xl shadow-sm bg-white overflow-hidden hover:shadow-md transition"
           >
             <img
@@ -121,20 +137,25 @@ const MyIssues = () => {
               className="w-full h-40 object-cover"
               alt="issue"
             />
-
-            <div className="p-4 space-y-3">
-              <h2 className="text-lg font-semibold">{issue.title}</h2>
+            <div className="p-2 space-y-1">
+              <h2 className="text-lg font-semibold">{issue.tittle}</h2>
 
               <span
-                className={`px-2 py-1 text-xs rounded-full ${
+                className={`px-2 py-1 text-xs rounded font-semibold ${
                   statusColors[issue.status]
                 }`}
               >
                 {issue.status.toUpperCase()}
               </span>
-
-              <p className="text-sm text-gray-600">📍 {issue.location}</p>
-              <p className="text-sm text-gray-500">📅 {issue.date}</p>
+              <div className="flex justify-between items-center my-2">
+                <p className="text-sm  text-gray-700 flex items-center gap-1">
+                  <FaLocationDot /> {issue.location}
+                </p>
+                <p className="text-sm text-gray-700 flex items-center gap-1">
+                  <GoDiscussionOutdated color="black" />
+                  {fotmateDate(issue.createdAt)}
+                </p>
+              </div>
             </div>
 
             {/* Buttons */}
@@ -143,7 +164,7 @@ const MyIssues = () => {
               {issue.status === "pending" && (
                 <button
                   className="flex-1 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
-                  onClick={() => setEditingIssue(issue)}
+                  onClick={() => openEditModal(issue)}
                 >
                   Edit
                 </button>
@@ -152,7 +173,7 @@ const MyIssues = () => {
               {/* Delete */}
               <button
                 className="flex-1 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                onClick={() => deleteIssue(issue.id)}
+                onClick={() => deleteIssue(issue._id)}
               >
                 Delete
               </button>
@@ -160,7 +181,7 @@ const MyIssues = () => {
               {/* View Details */}
               <button
                 className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                onClick={() => (window.location.href = `/issue/${issue.id}`)}
+                onClick={() => navigate(`/issues/${issue._id}`)}
               >
                 View
               </button>
@@ -176,61 +197,13 @@ const MyIssues = () => {
         </div>
       )}
 
-      {/* ---------------------------------------------------
-         EDIT MODAL (Pre-filled)
-      -----------------------------------------------------*/}
-      {editingIssue && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-          <div className="bg-white rounded-xl p-6 w-full max-w-lg space-y-4 shadow-lg">
-            <h2 className="text-xl font-semibold">Edit Issue</h2>
-
-            <input
-              type="text"
-              className="w-full border px-3 py-2 rounded"
-              value={editingIssue.title}
-              onChange={(e) =>
-                setEditingIssue({ ...editingIssue, title: e.target.value })
-              }
-            />
-
-            <textarea
-              className="w-full border px-3 py-2 rounded"
-              rows="4"
-              value={editingIssue.description}
-              onChange={(e) =>
-                setEditingIssue({
-                  ...editingIssue,
-                  description: e.target.value,
-                })
-              }
-            />
-
-            <input
-              type="text"
-              className="w-full border px-3 py-2 rounded"
-              value={editingIssue.location}
-              onChange={(e) =>
-                setEditingIssue({ ...editingIssue, location: e.target.value })
-              }
-            />
-
-            <div className="flex justify-end gap-3">
-              <button
-                className="px-4 py-2 bg-gray-300 rounded"
-                onClick={() => setEditingIssue(null)}
-              >
-                Cancel
-              </button>
-
-              <button
-                className="px-4 py-2 bg-green-600 text-white rounded"
-                onClick={saveIssue}
-              >
-                Save Changes
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* EDIT MODAL */}
+      {isEditOpen && (
+        <EditModal
+          isOpen={isEditOpen}
+          closeModal={() => setIsEditOpen(false)}
+          issue={selectedIssue}
+        />
       )}
     </div>
   );

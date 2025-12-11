@@ -10,7 +10,7 @@ import Login from "../Pages/Auth/Login";
 import Register from "../Pages/Auth/Register";
 import DashLayout from "../Layouts/DashLayout";
 import PrivateRoutes from "./PrivateRoutes";
-import Dashboard from "../Pages/Dashboard/Dashboard";
+import Dashboard from "../Pages/Dashboard/CitizenDashboard";
 import ReportIssue from "../Pages/Report-Issue/ReportIssue";
 import MyIssues from "../Pages/My-Issues/MyIssues";
 import Profile from "../Pages/Profile/Profile";

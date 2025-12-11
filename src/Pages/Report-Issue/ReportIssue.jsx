@@ -8,9 +8,11 @@ import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
 import LoadingSpinner from "../../Util/LoadingSpinner";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
 
 const ReportIssue = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const {
     isLoading,
@@ -28,6 +30,7 @@ const ReportIssue = () => {
       //show toast
       toast.success("Issues Submitted Successfully");
       mutationReset();
+      navigate("/dashboard/my-issues");
       //show query key invalidate
     },
     onError: (error) => {
@@ -46,7 +49,8 @@ const ReportIssue = () => {
 
   const onSubmit = async (data) => {
     const { tittle, category, location, description, issueImage } = data;
-    const issueImageURL = imageURL(issueImage);
+    const issueImageURL = await imageURL(issueImage);
+    console.log(issueImageURL);
     const newIssue = {
       tittle,
       category,

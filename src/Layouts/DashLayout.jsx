@@ -1,5 +1,3 @@
-import React from "react";
-import Dashboard from "../Pages/Dashboard/Dashboard";
 import Sidebar from "../Components/Dashboard/Sidebar/Sidebar";
 import { Outlet } from "react-router";
 

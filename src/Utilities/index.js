@@ -2,7 +2,6 @@ import axios from "axios";
 import { format } from "date-fns";
 
 export const imageURL = async (photo) => {
-  if (photo.length === 0) return;
   const imageFile = photo[0];
   const formData = new FormData();
   formData.append("image", imageFile);
@@ -19,5 +18,5 @@ export const imageURL = async (photo) => {
 };
 
 export const fotmateDate = (date) => {
-  return format(new Date(date), "dd/MM/yyyy");
+  return format(new Date(date), "dd/MM/yyyy hh:mm a");
 };
