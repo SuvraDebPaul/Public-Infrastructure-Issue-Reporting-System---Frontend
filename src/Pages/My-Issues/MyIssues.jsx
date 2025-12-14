@@ -171,13 +171,14 @@ const MyIssues = () => {
               )}
 
               {/* Delete */}
-              <button
-                className="flex-1 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                onClick={() => deleteIssue(issue._id)}
-              >
-                Delete
-              </button>
-
+              {issue.status === "pending" && (
+                <button
+                  className="flex-1 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                  onClick={() => deleteIssue(issue._id)}
+                >
+                  Delete
+                </button>
+              )}
               {/* View Details */}
               <button
                 className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"

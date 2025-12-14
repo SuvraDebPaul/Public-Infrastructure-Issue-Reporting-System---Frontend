@@ -36,7 +36,7 @@ const BoostModal = ({ closeModal, isOpen, issue }) => {
       paymentInfo
     );
     window.location.href = data.url;
-    console.log(data.url);
+    // console.log(data.url);
   };
 
   return (

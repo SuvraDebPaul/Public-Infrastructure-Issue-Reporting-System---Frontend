@@ -12,8 +12,8 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-const EditModal = ({ closeModal, isOpen, issue }) => {
- // console.log(issue);
+const EditUserModal = ({ closeModal, isOpen, userData }) => {
+  console.log(userData);
   const queryClient = useQueryClient();
   const {
     register,
@@ -21,16 +21,17 @@ const EditModal = ({ closeModal, isOpen, issue }) => {
     formState: { errors },
   } = useForm();
 
-  const editMutation = useMutation({
-    mutationFn: async (updatedIssue) => {
+  const editUserMutation = useMutation({
+    mutationFn: async (updatedUser) => {
       return await axios.put(
-        `${import.meta.env.VITE_API_URL}/issues/${issue._id}`,
-        updatedIssue
+        `${import.meta.env.VITE_API_URL}/users/update`,
+        updatedUser
       );
     },
     onSuccess: () => {
-      toast.success("Issue Updated Successfully");
-      queryClient.invalidateQueries(["issue"]); // 🔥 <-- REFRESH UI
+      toast.success("User Updated Successfully");
+      queryClient.invalidateQueries(["user"]); // 🔥 <-- REFRESH UI
+
       closeModal();
     },
     onError: (error) => {
@@ -40,16 +41,14 @@ const EditModal = ({ closeModal, isOpen, issue }) => {
 
   const onSubmit = async (data) => {
     // console.log(data);
-    const { tittle, category, location, description } = data;
-    const updatedIssue = {
-      tittle,
-      category,
-      location,
-      description,
-      updatedAt: new Date(),
+    const { name, email } = data;
+    const updatedUser = {
+      name,
+      email,
     };
-    editMutation.mutate(updatedIssue);
+    editUserMutation.mutate(updatedUser);
   };
+
   return (
     <Dialog
       open={isOpen}
@@ -73,11 +72,8 @@ const EditModal = ({ closeModal, isOpen, issue }) => {
                 </div>
                 <div>
                   <h1 className="text-2xl font-semibold text-slate-900">
-                    Edit The Issue
+                    Edit User Profile
                   </h1>
-                  <p className="text-sm text-slate-500">
-                    Your Complain Helps Us To Improve the City
-                  </p>
                 </div>
               </div>
             </DialogTitle>
@@ -87,9 +83,9 @@ const EditModal = ({ closeModal, isOpen, issue }) => {
                   onSubmit={handleSubmit(onSubmit)}
                   className="flex flex-col gap-6"
                 >
-                  {/* Issue Title */}
+                  {/* User Name */}
                   <label className="block">
-                    <span className="text-sm text-slate-600">Issue Title</span>
+                    <span className="text-sm text-slate-600">Display Name</span>
                     <div className="mt-1 relative">
                       <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
                         <User size={16} className="text-slate-400" />
@@ -98,8 +94,8 @@ const EditModal = ({ closeModal, isOpen, issue }) => {
                         type="text"
                         className="w-full pl-10 pr-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400"
                         placeholder="Issue Title"
-                        defaultValue={issue.tittle}
-                        {...register("tittle", { required: true })}
+                        defaultValue={userData?.name}
+                        {...register("name")}
                       />
                     </div>
                     {errors.tittle?.type === "required" && (
@@ -108,67 +104,29 @@ const EditModal = ({ closeModal, isOpen, issue }) => {
                       </p>
                     )}
                   </label>
-
-                  {/* Category */}
+                  {/* User Email */}
                   <label className="block">
-                    <span className="text-sm text-slate-600">Category</span>
+                    <span className="text-sm text-slate-600">Email</span>
                     <div className="mt-1 relative">
                       <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
                         <Mail size={16} className="text-slate-400" />
                       </div>
                       <input
-                        type="text"
+                        type="email"
                         className="w-full pl-10 pr-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400"
-                        placeholder="Issue Category"
-                        defaultValue={issue.category}
-                        {...register("category", { required: true })}
+                        placeholder="Issue Title"
+                        defaultValue={userData?.email}
+                        {...register("email")}
+                        disabled
                       />
                     </div>
-                    {errors.category?.type === "required" && (
-                      <p role="alert" className="text-red-500 text-sm">
-                        Issue Category is required
-                      </p>
-                    )}
                   </label>
-
-                  {/* Location */}
-                  <label className="block">
-                    <span className="text-sm text-slate-600">Location</span>
-                    <div className="mt-1 relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
-                        <Lock size={16} className="text-slate-400" />
-                      </div>
-                      <input
-                        className="w-full pl-10 pr-10 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400"
-                        placeholder="Location"
-                        defaultValue={issue.location}
-                        {...register("location", { required: true })}
-                      />
-                    </div>
-                    {errors.location?.type === "required" && (
-                      <p role="alert" className="text-red-500 text-sm">
-                        Location is required
-                      </p>
-                    )}
-                  </label>
-                  {/* Description */}
-                  <label className="col-span-2">
-                    <span className="text-sm text-slate-600">Description</span>
-                    <textarea
-                      className="w-full pl-4 pr-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400"
-                      placeholder="Description"
-                      defaultValue={issue.description}
-                      {...register("description")}
-                    />
-                  </label>
-
                   {/* Submit */}
                   <button
                     type="submit"
                     className="w-full py-2 rounded-lg bg-indigo-600 text-white font-medium shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
                   >
-                    {/* <TbFidgetSpinner className="animate-spin m-auto" /> */}
-                    Re-submit Your Issue
+                    Update Profile
                   </button>
                 </form>
               </div>
@@ -180,4 +138,4 @@ const EditModal = ({ closeModal, isOpen, issue }) => {
   );
 };
 
-export default EditModal;
+export default EditUserModal;

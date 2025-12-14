@@ -15,6 +15,12 @@ import ReportIssue from "../Pages/Report-Issue/ReportIssue";
 import MyIssues from "../Pages/My-Issues/MyIssues";
 import Profile from "../Pages/Profile/Profile";
 import PaymentSucess from "../Pages/PaymentSucess/PaymentSucess";
+import StaffDashboard from "../Components/Dashboard/Staff/StaffDashboard";
+import AdminDashboard from "../Components/Dashboard/Admin/AdminDashboard";
+import AdminAllIssues from "../Components/Dashboard/Admin/AdminAllIssues";
+import ManageUsers from "../Components/Dashboard/Admin/ManageUsers";
+import ManageStaff from "../Components/Dashboard/Admin/ManageStaff";
+import AllPayments from "../Components/Dashboard/Admin/AllPayments";
 
 export const router = createBrowserRouter([
   {
@@ -84,11 +90,31 @@ export const router = createBrowserRouter([
       },
       {
         path: "my-issues/:id",
-        element: <IssueDetails />, // FIXED!
+        element: <IssueDetails />,
       },
       {
         path: "profile",
         element: <Profile />,
+      },
+      {
+        path: "/dashboard/admin",
+        element: <AdminDashboard />,
+      },
+      {
+        path: "/dashboard/all-issues",
+        element: <AdminAllIssues />,
+      },
+      {
+        path: "/dashboard/manage-users",
+        element: <ManageUsers />,
+      },
+      {
+        path: "/dashboard/manage-staff",
+        element: <ManageStaff />,
+      },
+      {
+        path: "/dashboard/all-payments",
+        element: <AllPayments />,
       },
     ],
   },

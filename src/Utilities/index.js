@@ -20,3 +20,11 @@ export const imageURL = async (photo) => {
 export const fotmateDate = (date) => {
   return format(new Date(date), "dd/MM/yyyy hh:mm a");
 };
+
+export const saveOrUpdateUser = async (userData) => {
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_API_URL}/users`,
+    userData
+  );
+  return data;
+};

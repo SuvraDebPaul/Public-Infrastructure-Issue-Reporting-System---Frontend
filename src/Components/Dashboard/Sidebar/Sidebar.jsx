@@ -8,10 +8,16 @@ import { FcSettings } from "react-icons/fc";
 import { AiOutlineBars } from "react-icons/ai";
 import { BsGraphUp } from "react-icons/bs";
 import MenuItem from "./Menu/MunuItem";
+import useRole from "../../../Hooks/useRole";
+import LoadingSpinner from "../../../Util/LoadingSpinner";
 
 const Sidebar = () => {
   const { logOut } = useAuth();
   const [isActive, setActive] = useState(false);
+  const [role, isRoleLoading] = useRole();
+  if (isRoleLoading) return <LoadingSpinner />;
+  const userRole = role.role;
+  // console.log(role.role);
 
   // Sidebar Responsive Handler
   const handleToggle = () => {
@@ -62,21 +68,68 @@ const Sidebar = () => {
             {/*  Menu Items */}
             <nav>
               {/* Chitizen Menu  */}
-              <MenuItem
-                icon={BsGraphUp}
-                label="Dashboard"
-                address="/dashboard"
-              />
-              <MenuItem
-                icon={AiOutlineBars}
-                label="My Issues"
-                address="my-issues"
-              />
-              <MenuItem
-                icon={IoCreateOutline}
-                label="Report An Issue"
-                address="report-issue"
-              />
+              {userRole === "citizen" && (
+                <>
+                  <MenuItem
+                    icon={BsGraphUp}
+                    label="Dashboard"
+                    address="/dashboard"
+                  />
+                  <MenuItem
+                    icon={AiOutlineBars}
+                    label="My Issues"
+                    address="my-issues"
+                  />
+                  <MenuItem
+                    icon={IoCreateOutline}
+                    label="Report An Issue"
+                    address="report-issue"
+                  />
+                </>
+              )}
+              {userRole === "staff" && (
+                <>
+                  <MenuItem
+                    icon={BsGraphUp}
+                    label="Dashboard"
+                    address="/dashboard/staff"
+                  />
+                  <MenuItem
+                    icon={AiOutlineBars}
+                    label="Assigned Issues"
+                    address="assigned-issues"
+                  />
+                </>
+              )}
+              {userRole === "admin" && (
+                <>
+                  <MenuItem
+                    icon={BsGraphUp}
+                    label="Dashboard"
+                    address="/dashboard/admin"
+                  />
+                  <MenuItem
+                    icon={AiOutlineBars}
+                    label="All Issues"
+                    address="/dashboard/all-issues"
+                  />
+                  <MenuItem
+                    icon={IoCreateOutline}
+                    label="Manage Users"
+                    address="/dashboard/manage-users"
+                  />
+                  <MenuItem
+                    icon={IoCreateOutline}
+                    label="Manage Staff"
+                    address="manage-staff"
+                  />
+                  <MenuItem
+                    icon={IoCreateOutline}
+                    label="All Payments"
+                    address="all-payments"
+                  />
+                </>
+              )}
 
               {/* Role-Based Menu */}
               {/* <CustomerMenu />
@@ -88,7 +141,6 @@ const Sidebar = () => {
           {/* Bottom Content */}
           <div>
             <hr />
-
             <MenuItem icon={FcSettings} label="Profile" address="profile" />
             <button
               onClick={logOut}

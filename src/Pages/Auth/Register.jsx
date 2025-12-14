@@ -10,12 +10,11 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import useAuth from "../../Hooks/useAuth";
-import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router";
 import toast from "react-hot-toast";
 import { TbFidgetSpinner } from "react-icons/tb";
 import { FaGoogle } from "react-icons/fa";
-import { imageURL } from "../../Utilities";
+import { imageURL, saveOrUpdateUser } from "../../Utilities";
 
 const Register = () => {
   const { createUser, updateUserProfile, signInWithGoogle, loading } =
@@ -36,13 +35,20 @@ const Register = () => {
 
     try {
       //1. User Registrarion
-      const result = await createUser(email, password);
+      await createUser(email, password);
 
       //2. Generate ImageURL From Selected File
       const photoURL = await imageURL(photo);
       //3. Update Profile image and name
       await updateUserProfile(name, photoURL);
-      console.log(result);
+      // console.log(result);
+      //Save User in DB
+      await saveOrUpdateUser({
+        name,
+        email,
+        image: photoURL,
+      });
+
       navigate(from, { replace: true });
       toast.success("User Registration Successful");
     } catch (error) {
@@ -52,7 +58,13 @@ const Register = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithGoogle();
+      const { user } = await signInWithGoogle();
+      //Save User In DB
+      await saveOrUpdateUser({
+        name: user.displayName,
+        email: user.email,
+        image: user.photoURL,
+      });
       navigate(from, { replace: true });
       toast.success("User Registration With Google Successful");
     } catch (err) {

@@ -1,48 +1,67 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import useRole from "../../Hooks/useRole";
+import LoadingSpinner from "../../Util/LoadingSpinner";
+import BoostModal from "../../Components/Modal/BoostModal";
+import Swal from "sweetalert2";
+import axios from "axios";
+import EditUserModal from "../../Components/Modal/EditUserModal";
 
 /* -----------------------------------------------------
    Main Profile Component
 ------------------------------------------------------*/
 const Profile = () => {
-  // Dummy user data (replace with API data)
-  const [user, setUser] = useState({
-    name: "Suvra Deb Paul",
-    email: "suvra@example.com",
-    phone: "01712345678",
-    premium: false,
-    blocked: false,
-    avatar: "https://via.placeholder.com/120",
-  });
+  const [userData, isRoleLoading] = useRole();
 
-  const [showEdit, setShowEdit] = useState(false);
-  const [editedUser, setEditedUser] = useState({ ...user });
+  let [isEditUserOpen, setIsEditUserOpen] = useState(false);
+
+  if (isRoleLoading) return <LoadingSpinner />;
+
+  console.log(userData);
+
+  const { _id: id, name, email, image, isPremium, isBlocked, role } = userData;
 
   /* -----------------------------------------------------
-     Handle Save Profile
+     Handle Edit Profile
   ------------------------------------------------------*/
-  const handleSave = () => {
-    setUser(editedUser);
-    setShowEdit(false);
-    // TODO: axios.put("/update-profile", editedUser)
+  const closeEditUserModal = () => {
+    setIsEditUserOpen(false);
   };
-
   /* -----------------------------------------------------
-     Handle Subscribe Payment (Dummy)
+     Handle Subscribe Payment 
   ------------------------------------------------------*/
-  const handleSubscribe = () => {
-    // TODO: Integrate actual payment gateway
-    alert("Redirecting to payment gateway...");
 
-    setTimeout(() => {
-      alert("Payment Success! You’re now a Premium User.");
-      setUser((prev) => ({ ...prev, premium: true }));
-    }, 1200);
+  const handleSubscribe = () => {
+    Swal.fire({
+      title: "Please Pay $1000 ",
+      text: "For Subscription",
+      icon: "info",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Proceed To Pay",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const paymentInfo = {
+          type: "subscribe",
+          userId: id,
+          name,
+          email,
+          image,
+          role,
+        };
+        const { data } = await axios.post(
+          `${import.meta.env.VITE_API_URL}/create-checkout-session`,
+          paymentInfo
+        );
+        window.location.href = data.url;
+      }
+    });
   };
 
   return (
     <div className="p-6 space-y-6 max-w-3xl mx-auto">
       {/* Blocked Banner */}
-      {user.blocked && (
+      {isBlocked && (
         <div className="p-4 bg-red-100 text-red-700 rounded-lg border border-red-300">
           ⚠️ <strong>Your account is currently blocked.</strong>
           <br />
@@ -55,24 +74,24 @@ const Profile = () => {
         {/* Profile Header */}
         <div className="flex items-center gap-4">
           <img
-            src={user.avatar}
+            src={image}
             className="w-20 h-20 rounded-full border"
             alt="avatar"
           />
 
           <div>
             <h2 className="text-2xl font-semibold flex items-center gap-3">
-              {user.name}
+              {name}
 
               {/* Premium Badge */}
-              {user.premium && (
-                <span className="px-2 py-1 bg-yellow-400 text-white text-xs font-bold rounded-full">
+              {isPremium && (
+                <span className="px-2 py-1 bg-amber-600 text-white text-xs font-bold rounded-md">
                   PREMIUM
                 </span>
               )}
             </h2>
 
-            <p className="text-gray-600">{user.email}</p>
+            <p className="text-gray-600">{email}</p>
           </div>
         </div>
 
@@ -80,12 +99,12 @@ const Profile = () => {
         <div className="space-y-3">
           <div>
             <label className="text-gray-600">Email</label>
-            <p className="font-medium">{user.email}</p>
+            <p className="font-medium">{email}</p>
           </div>
 
           <div>
-            <label className="text-gray-600">Phone</label>
-            <p className="font-medium">{user.phone}</p>
+            <label className="text-gray-600">Role</label>
+            <p className="font-medium capitalize ">{role}</p>
           </div>
         </div>
 
@@ -93,14 +112,14 @@ const Profile = () => {
         <div className="flex gap-3 pt-4">
           {/* Edit Button */}
           <button
-            onClick={() => setShowEdit(true)}
+            onClick={() => setIsEditUserOpen(true)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Edit Profile
           </button>
 
           {/* Subscribe Button */}
-          {!user.premium && !user.blocked && (
+          {!isPremium && !isBlocked && (
             <button
               onClick={handleSubscribe}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
@@ -114,56 +133,11 @@ const Profile = () => {
       {/* -----------------------------------------------------
           EDIT MODAL
       ------------------------------------------------------*/}
-      {showEdit && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-          <div className="bg-white rounded-xl p-6 w-full max-w-lg shadow-lg space-y-4">
-            <h2 className="text-xl font-semibold">Edit Profile</h2>
-
-            <input
-              type="text"
-              className="w-full border px-3 py-2 rounded"
-              value={editedUser.name}
-              onChange={(e) =>
-                setEditedUser({ ...editedUser, name: e.target.value })
-              }
-            />
-
-            <input
-              type="email"
-              className="w-full border px-3 py-2 rounded"
-              value={editedUser.email}
-              onChange={(e) =>
-                setEditedUser({ ...editedUser, email: e.target.value })
-              }
-            />
-
-            <input
-              type="text"
-              className="w-full border px-3 py-2 rounded"
-              value={editedUser.phone}
-              onChange={(e) =>
-                setEditedUser({ ...editedUser, phone: e.target.value })
-              }
-            />
-
-            <div className="flex justify-end gap-3">
-              <button
-                className="px-4 py-2 bg-gray-300 rounded"
-                onClick={() => setShowEdit(false)}
-              >
-                Cancel
-              </button>
-
-              <button
-                className="px-4 py-2 bg-green-600 text-white rounded"
-                onClick={handleSave}
-              >
-                Save Changes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <EditUserModal
+        closeModal={closeEditUserModal}
+        isOpen={isEditUserOpen}
+        userData={userData}
+      />
     </div>
   );
 };

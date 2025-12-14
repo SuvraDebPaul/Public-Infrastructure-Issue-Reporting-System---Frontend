@@ -7,6 +7,7 @@ import { FaGoogle } from "react-icons/fa";
 import useAuth from "../../Hooks/useAuth";
 import toast from "react-hot-toast";
 import { TbFidgetSpinner } from "react-icons/tb";
+import { saveOrUpdateUser } from "../../Utilities";
 
 const Login = () => {
   const [showPassword, setShowPassword] = React.useState(false);
@@ -26,7 +27,13 @@ const Login = () => {
     //  console.log({ email, password });
 
     try {
-      await signIn(email, password);
+      const { user } = await signIn(email, password);
+      await saveOrUpdateUser({
+        name: user.displayName,
+        email: user.email,
+        image: user.photoURL,
+      });
+
       navigate(from, { replace: true });
       toast.success("User Login Successful");
     } catch (err) {
@@ -37,7 +44,12 @@ const Login = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithGoogle();
+      const { user } = await signInWithGoogle();
+      await saveOrUpdateUser({
+        name: user.displayName,
+        email: user.email,
+        image: user.photoURL,
+      });
       navigate(from, { replace: true });
       toast.success("User Registration With Google Successful");
     } catch (err) {
