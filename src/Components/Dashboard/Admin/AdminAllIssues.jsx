@@ -1,152 +1,90 @@
-import React, { useState } from "react";
-import { Card, CardContent } from "../../Ui/Card";
-import { Button } from "../../Ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "../../Ui/dialog";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-} from "../../Ui/select";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import LoadingSpinner from "../../../Util/LoadingSpinner";
+import { useState } from "react";
+import AssignStaffModal from "../../Modal/AssignStaffModal";
+import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 
 export default function AdminAllIssues() {
-  const [issues, setIssues] = useState([
-    {
-      id: 1,
-      title: "Road damage",
-      category: "Infrastructure",
-      status: "Pending",
-      priority: "High",
-      assignedStaff: null,
-      boosted: true,
+  const axiosSecure = useAxiosSecure();
+  let [isAssignStaffOpen, setIsAssignStaffOpen] = useState(false);
+  const [selectedIssueId, setSelectedIssueId] = useState(null);
+  const { isLoading, data: allIssues = [] } = useQuery({
+    queryKey: ["all-issues"],
+    queryFn: async () => {
+      const result = await axios(`${import.meta.env.VITE_API_URL}/issues`);
+      return result.data;
     },
-    {
-      id: 2,
-      title: "Water leakage",
-      category: "Utilities",
-      status: "Pending",
-      priority: "Normal",
-      assignedStaff: "Rafi",
-      boosted: false,
+  });
+  const { isLoading: isUserLoading, data: allUser = [] } = useQuery({
+    queryKey: ["all-user"],
+    queryFn: async () => {
+      const result = await axiosSecure(`${import.meta.env.VITE_API_URL}/users`);
+      return result.data;
     },
-  ]);
+  });
+  if (isLoading || isUserLoading) return <LoadingSpinner />;
 
-  const [showModal, setShowModal] = useState(false);
-  const [selectedIssue, setSelectedIssue] = useState(null);
-  const [selectedStaff, setSelectedStaff] = useState("");
-
-  const staffList = ["Bablu", "Rafi", "Jahid"];
-
-  const openAssignModal = (issue) => {
-    setSelectedIssue(issue);
-    setSelectedStaff("");
-    setShowModal(true);
+  const closeAssignStaffModal = () => {
+    setIsAssignStaffOpen(false);
   };
-
-  const assignStaff = () => {
-    if (!selectedStaff) return;
-
-    // update issue state locally
-    setIssues((prev) =>
-      prev.map((i) =>
-        i.id === selectedIssue.id ? { ...i, assignedStaff: selectedStaff } : i
-      )
-    );
-
-    // TODO: Save assignment to DB and add tracking record
-
-    setShowModal(false);
-  };
-
-  const rejectIssue = (issueId) => {
-    if (!confirm("Are you sure you want to reject this issue?")) return;
-    setIssues((prev) =>
-      prev.map((i) => (i.id === issueId ? { ...i, status: "Rejected" } : i))
-    );
-    // TODO: Update DB
-  };
-
-  // Boosted issues on top
-  const sortedIssues = [...issues].sort((a, b) => b.boosted - a.boosted);
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">All Issues</h1>
-      <Card>
-        <CardContent>
-          <table className="w-full table-auto border-collapse">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border p-2">Title</th>
-                <th className="border p-2">Category</th>
-                <th className="border p-2">Status</th>
-                <th className="border p-2">Priority</th>
-                <th className="border p-2">Assigned Staff</th>
-                <th className="border p-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedIssues.map((issue) => (
-                <tr key={issue.id} className="text-sm">
-                  <td className="border p-2">{issue.title}</td>
-                  <td className="border p-2">{issue.category}</td>
-                  <td className="border p-2">{issue.status}</td>
-                  <td className="border p-2">{issue.priority}</td>
-                  <td className="border p-2">{issue.assignedStaff || "-"}</td>
-                  <td className="border p-2 space-x-2">
-                    {!issue.assignedStaff && (
-                      <Button size="sm" onClick={() => openAssignModal(issue)}>
-                        Assign Staff
-                      </Button>
-                    )}
-                    {issue.status === "Pending" && (
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => rejectIssue(issue.id)}
-                      >
-                        Reject
-                      </Button>
-                    )}
-                  </td>
+    <>
+      <div className="bg-white rounded-2xl shadow-sm m-2 p-2">
+        <div className="p-4">
+          <h3 className="text-2xl font-bold mb-3">All Issues</h3>
+          <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+            <table className="table">
+              {/* head */}
+              <thead>
+                <tr>
+                  <th>SL No.</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                  <th>Priority</th>
+                  <th>Assigned Staff</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </CardContent>
-      </Card>
-
-      {/* Assign Staff Modal */}
-      <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Assign Staff</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <Select value={selectedStaff} onValueChange={setSelectedStaff}>
-              <SelectTrigger className="w-full">
-                {selectedStaff || "Select Staff"}
-              </SelectTrigger>
-              <SelectContent>
-                {staffList.map((staff) => (
-                  <SelectItem key={staff} value={staff}>
-                    {staff}
-                  </SelectItem>
+              </thead>
+              <tbody>
+                {allIssues.map((issue, i) => (
+                  <tr key={issue._id}>
+                    <th>{i + 1}</th>
+                    <td className="capitalize">{issue.tittle}</td>
+                    <td className="capitalize">{issue.category}</td>
+                    <td className="capitalize">{issue.status}</td>
+                    <td className="capitalize">{issue.priority}</td>
+                    <td className="capitalize">Mr. {issue.assignedStaffId}</td>
+                    <td className="capitalize">
+                      <button
+                        onClick={() => {
+                          setIsAssignStaffOpen(true);
+                          setSelectedIssueId(issue._id);
+                        }}
+                        className={`btn btn-primary mr-2 ${
+                          issue.assignedStaffId !== null && "btn-disabled"
+                        }`}
+                      >
+                        Assign Stuff
+                      </button>
+                      <button className="btn btn-secondary">Reject</button>
+                    </td>
+                  </tr>
                 ))}
-              </SelectContent>
-            </Select>
+              </tbody>
+            </table>
           </div>
-          <DialogFooter>
-            <Button onClick={assignStaff}>Confirm Assignment</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+        </div>
+      </div>
+      {/* Assign Staff Modal */}
+      <AssignStaffModal
+        closeModal={closeAssignStaffModal}
+        isOpen={isAssignStaffOpen}
+        allUser={allUser}
+        issueId={selectedIssueId}
+      />
+    </>
   );
 }

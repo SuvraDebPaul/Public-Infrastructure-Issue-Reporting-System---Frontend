@@ -1,113 +1,69 @@
-import React, { useState } from "react";
-import { Card, CardContent } from "../../Ui/Card";
-import { Button } from "../../Ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "../../Ui/dialog";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosSecure from "../../../Hooks/useAxiosSecure";
+import LoadingSpinner from "../../../Util/LoadingSpinner";
 
-export default function ManageUsersPage() {
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: "Bablu",
-      email: "bablu@gmail.com",
-      subscription: "Premium",
-      blocked: false,
+const ManageUsers = () => {
+  const axiosSecure = useAxiosSecure();
+  const { isLoading: isUserLoading, data: allUser = [] } = useQuery({
+    queryKey: ["all-user"],
+    queryFn: async () => {
+      const result = await axiosSecure(`${import.meta.env.VITE_API_URL}/users`);
+      return result.data;
     },
-    {
-      id: 2,
-      name: "Rafi",
-      email: "rafi@gmail.com",
-      subscription: "Free",
-      blocked: true,
-    },
-  ]);
-
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [actionType, setActionType] = useState(""); // 'block' or 'unblock'
-
-  const toggleBlock = (user) => {
-    setSelectedUser(user);
-    setActionType(user.blocked ? "unblock" : "block");
-    setShowConfirm(true);
+  });
+  const handleBlock = async (status) => {
+    if (status) {
+    }
   };
 
-  const confirmToggle = () => {
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === selectedUser.id ? { ...u, blocked: !u.blocked } : u
-      )
-    );
-    // TODO: Update DB for block/unblock
-    setShowConfirm(false);
-  };
-
+  if (isUserLoading) return <LoadingSpinner />;
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Manage Users</h1>
-
-      <Card>
-        <CardContent>
-          <table className="w-full table-auto border-collapse">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border p-2">Name</th>
-                <th className="border p-2">Email</th>
-                <th className="border p-2">Subscription</th>
-                <th className="border p-2">Status</th>
-                <th className="border p-2">Actions</th>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Manage Users</h1>
+      <div className="overflow-x-auto">
+        <table className="table table-zebra w-full">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Subscription</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {allUser.map((user, i) => (
+              <tr key={user._id}>
+                <th>{i + 1}</th>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td>{(user.isPremium && "Premium") || "Free"}</td>
+                <td>
+                  <span
+                    className={`badge ${
+                      user.isBlocked ? "badge-error" : "badge-success"
+                    }`}
+                  >
+                    {user.isBlocked ? "Blocked" : "Active"}
+                  </span>
+                </td>
+                <td>
+                  <button
+                    className={`btn btn-sm ${
+                      user.isBlocked ? "btn-success" : "btn-error"
+                    }`}
+                  >
+                    {user.isBlocked ? "Unblock" : "Block"}
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id} className="text-sm">
-                  <td className="border p-2">{user.name}</td>
-                  <td className="border p-2">{user.email}</td>
-                  <td className="border p-2">{user.subscription}</td>
-                  <td className="border p-2">
-                    {user.blocked ? "Blocked" : "Active"}
-                  </td>
-                  <td className="border p-2">
-                    <Button
-                      variant={user.blocked ? "default" : "destructive"}
-                      size="sm"
-                      onClick={() => toggleBlock(user)}
-                    >
-                      {user.blocked ? "Unblock" : "Block"}
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </CardContent>
-      </Card>
-
-      {/* Confirmation Dialog */}
-      <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {actionType === "block" ? "Block User" : "Unblock User"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            Are you sure you want to {actionType}{" "}
-            <strong>{selectedUser?.name}</strong>?
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setShowConfirm(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={confirmToggle}>
-              {actionType === "block" ? "Block" : "Unblock"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
-}
+};
+
+export default ManageUsers;
