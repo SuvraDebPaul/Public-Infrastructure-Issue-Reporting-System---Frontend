@@ -5,7 +5,7 @@ const LoadingSpinner = ({ smallHeight }) => {
     <div
       className={`${
         smallHeight ? "h-[250px]" : "h-[70vh]"
-      } flex flex-col justify-center items-center`}
+      } flex flex-col justify-center items-center bg-transparent`}
     >
       <HashLoader size={80} color="lime" />
     </div>

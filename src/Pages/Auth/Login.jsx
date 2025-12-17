@@ -8,6 +8,7 @@ import useAuth from "../../Hooks/useAuth";
 import toast from "react-hot-toast";
 import { TbFidgetSpinner } from "react-icons/tb";
 import { saveOrUpdateUser } from "../../Utilities";
+import LoadingSpinner from "../../Util/LoadingSpinner";
 
 const Login = () => {
   const [showPassword, setShowPassword] = React.useState(false);
@@ -23,8 +24,6 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     const { email, password } = data;
-    // UI-only: replace with real auth call when ready
-    //  console.log({ email, password });
 
     try {
       const { user } = await signIn(email, password);
@@ -57,6 +56,8 @@ const Login = () => {
       toast.error(err?.message);
     }
   };
+
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-base-100 to-base-300 pt-2 pb-8">

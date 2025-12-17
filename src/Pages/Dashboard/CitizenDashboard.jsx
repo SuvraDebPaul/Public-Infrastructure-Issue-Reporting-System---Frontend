@@ -39,17 +39,23 @@ const CitizenDashboard = () => {
   });
 
   if (isLoading || isPending) return <LoadingSpinner />;
-  console.log(allPayments);
-  console.log(issues.length);
+  // console.log(issues);
+
   const pendingIssues = issues.filter((issue) => issue.status === "pending");
-  const inProgressIssues = issues.filter(
-    (issue) => issue.status === "in-progress"
-  );
+  const inProgressIssues = issues.filter((issue) => {
+    const normalized = issue.status
+      ?.toLowerCase()
+      .trim()
+      .replace(/\u2013|\u2014/g, "-"); // convert en/em dash to hyphen
+
+    return normalized === "in-progress";
+  });
+  console.log(inProgressIssues);
   const resolvedIssues = issues.filter((issue) => issue.status === "resolved");
   const totalPayment = allPayments.reduce((sum, issue) => {
     return sum + Number(issue.amount) || 0;
   }, 0);
-  console.log(totalPayment);
+  // console.log(totalPayment);
   const issueChartData = [
     { name: "Pending", value: Number(pendingIssues.length) },
     { name: "In Progress", value: Number(inProgressIssues.length) },
@@ -69,35 +75,35 @@ const CitizenDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <div className="rounded-xl border bg-white shadow-sm dark:bg-neutral-900 dark:border-neutral-800">
           <div className="p-6 text-center">
-            <h3 className="text-lg font-semibold">Total Issues</h3>
+            <h3 className="text-lg font-semibold">Total Issues Submitted</h3>
             <p className="text-4xl font-bold">{issues.length}</p>
           </div>
         </div>
 
         <div className="rounded-xl border bg-white shadow-sm dark:bg-neutral-900 dark:border-neutral-800">
           <div className="pt-6 text-center">
-            <h3 className="text-lg font-semibold">Pending</h3>
+            <h3 className="text-lg font-semibold">Total Pending Issues</h3>
             <p className="text-3xl font-bold">{pendingIssues.length}</p>
           </div>
         </div>
 
         <div className="rounded-xl border bg-white shadow-sm dark:bg-neutral-900 dark:border-neutral-800">
           <div className="pt-6 text-center">
-            <h3 className="text-lg font-semibold">In Progress</h3>
+            <h3 className="text-lg font-semibold">Total In Progress Issues</h3>
             <p className="text-3xl font-bold">{inProgressIssues.length}</p>
           </div>
         </div>
 
         <div className="rounded-xl border bg-white shadow-sm dark:bg-neutral-900 dark:border-neutral-800">
           <div className="pt-6 text-center">
-            <h3 className="text-lg font-semibold">Resolved</h3>
+            <h3 className="text-lg font-semibold">Total Resolved Issues</h3>
             <p className="text-3xl font-bold">{resolvedIssues.length}</p>
           </div>
         </div>
 
         <div className="rounded-xl border bg-white shadow-sm dark:bg-neutral-900 dark:border-neutral-800">
           <div className="pt-6 text-center">
-            <h3 className="text-lg font-semibold">Total Payments</h3>
+            <h3 className="text-lg font-semibold">Total Payments Done</h3>
             <p className="text-3xl font-bold">${totalPayment}</p>
           </div>
         </div>

@@ -69,7 +69,7 @@ const IssueDetails = () => {
           <img
             className="px-4"
             src={
-              issue.image.length
+              issue?.image
                 ? issue.image
                 : "https://skhcn.hatinh.gov.vn/storage/images.thumb.6884ae87-e99e-4995-8621-76a68fc0df7a.jpg"
             }
@@ -166,6 +166,7 @@ const IssueDetails = () => {
               <ul className="space-x-2">
                 <li>Pending</li>
                 <li>In-Progress</li>
+                <li>Working</li>
                 <li>Resolved</li>
                 <li>Closed</li>
               </ul>
@@ -174,8 +175,8 @@ const IssueDetails = () => {
               {[...issue.timeline] // copy array
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // latest first
                 .map((entry, i) => (
-                  <li key={i} className="step step-primary">
-                    <div className="text-left py-10">
+                  <li key={i} data-content="✓" className="step step-primary">
+                    <div className="text-left mt-12">
                       {" "}
                       {/* Status + Badge */}
                       <span className="font-semibold text-lg flex items-center gap-2 capitalize">
@@ -196,15 +197,15 @@ const IssueDetails = () => {
                         </span>
                       </span>
                       {/* Message */}
-                      <p className="text-sm mt-1">
+                      <p className="text-sm">
                         <strong>Message:</strong> {entry?.message}
                       </p>
                       {/* Date */}
-                      <p className="text-sm mt-1">
+                      <p className="text-sm">
                         <strong>Date:</strong> {fotmateDate(entry?.createdAt)}
                       </p>
                       {/* Updated By */}
-                      <p className="text-sm mt-1 capitalize">
+                      <p className="text-sm capitalize">
                         <strong>Updated By:</strong> {entry?.updatedBy}
                       </p>
                     </div>

@@ -24,7 +24,7 @@ const StaffDashboard = () => {
     (issue) => issue.assignedStaffId === user.displayName
   );
 
-  const resolvedIssue = allIssues.filter(
+  const resolvedIssue = assignedIssue.filter(
     (issue) => issue.status === "resolved"
   );
 

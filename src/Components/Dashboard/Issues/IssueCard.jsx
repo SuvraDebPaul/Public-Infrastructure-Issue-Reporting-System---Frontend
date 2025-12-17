@@ -36,7 +36,7 @@ const IssueCard = ({ issues }) => {
           <img
             className="w-full h-[350px]"
             src={
-              issues.image.length
+              issues?.image
                 ? issues.image
                 : "https://skhcn.hatinh.gov.vn/storage/images.thumb.6884ae87-e99e-4995-8621-76a68fc0df7a.jpg"
             }

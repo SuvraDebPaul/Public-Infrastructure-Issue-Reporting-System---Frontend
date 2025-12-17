@@ -36,8 +36,8 @@ const AssignStaffModal = ({ closeModal, isOpen, allUser, issueId }) => {
   const onSubmit = (data) => {
     const { assignStaff } = data;
     const updateStaff = {
-      status: "In-Progress ",
       assignedStaffId: assignStaff,
+      assignedA: new Date(),
       timeline: {
         status: `Assigned`,
         message: `Staff Assigned to Mr. ${assignStaff}`,

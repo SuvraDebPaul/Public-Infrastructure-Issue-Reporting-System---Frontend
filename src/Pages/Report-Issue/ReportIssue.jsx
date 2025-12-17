@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { Mail, Lock, User, Image as ImageIcon } from "lucide-react";
 import { imageURL } from "../../Utilities";
 import axios from "axios";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "../../Util/LoadingSpinner";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
@@ -13,7 +13,28 @@ import { useNavigate } from "react-router";
 const ReportIssue = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { isLoading: isIssueLoading, data: myIssues = [] } = useQuery({
+    queryKey: ["issues", user.email],
+    queryFn: async () => {
+      const result = await axios(
+        `${import.meta.env.VITE_API_URL}/all-issues/${user.email}`
+      );
+      return result.data;
+    },
+  });
 
+  console.log(myIssues.length);
+
+  const { isLoading: isUserLoading, data: myUser = [] } = useQuery({
+    queryKey: ["myUser", user.email],
+    queryFn: async () => {
+      const result = await axios(
+        `${import.meta.env.VITE_API_URL}/users/${user.email}`
+      );
+      return result.data;
+    },
+  });
+  console.log(myUser.isPremium);
   const {
     isLoading,
     mutateAsync,
@@ -26,19 +47,13 @@ const ReportIssue = () => {
       );
     },
     onSuccess: () => {
-      //console.log("ON SUCCESS", data);
-      //show toast
       toast.success("Issues Submitted Successfully");
       mutationReset();
       navigate("/dashboard/my-issues");
-      //show query key invalidate
     },
     onError: (error) => {
       console.log("ON ERROR", error);
     },
-    // onMutate: (payload) => {
-    //   console.log("I Will Post This Data", payload);
-    // },
   });
   const {
     register,
@@ -49,8 +64,10 @@ const ReportIssue = () => {
 
   const onSubmit = async (data) => {
     const { tittle, category, location, description, issueImage } = data;
-    const issueImageURL = await imageURL(issueImage);
-    console.log(issueImageURL);
+    const issueImageURL =
+      (await imageURL(issueImage)) ||
+      "https://skhcn.hatinh.gov.vn/storage/images.thumb.6884ae87-e99e-4995-8621-76a68fc0df7a.jpg";
+
     const newIssue = {
       tittle,
       category,
@@ -83,7 +100,7 @@ const ReportIssue = () => {
     reset();
   };
 
-  if (isLoading) return <LoadingSpinner />;
+  if (isLoading || isIssueLoading || isUserLoading) return <LoadingSpinner />;
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 pt-4 pb-10">
       <div className="p-8">
@@ -194,7 +211,11 @@ const ReportIssue = () => {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full py-2 rounded-lg bg-indigo-600 text-white font-medium shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            className={`btn col-span-2 w-full py-2 rounded-lg btn-primary ${
+              myIssues.length > 2 && myUser.isPremium === false
+                ? "btn-disabled"
+                : ""
+            }`}
           >
             {isLoading ? (
               <TbFidgetSpinner className="animate-spin m-auto" />
@@ -202,6 +223,11 @@ const ReportIssue = () => {
               "Submit Your Issue"
             )}
           </button>
+          <p className="text-error">
+            {myIssues.length > 2 && myUser.isPremium === false
+              ? "Please Subscribe To Post More Than 3 Issues"
+              : ""}
+          </p>
         </form>
       </div>
     </div>

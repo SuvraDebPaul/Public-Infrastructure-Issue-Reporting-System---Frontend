@@ -18,9 +18,9 @@ const AllPayments = () => {
     return sum + payment.amount;
   }, 0);
 
-  const latestPayments = [...allPayments]
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 6);
+  const sortedPayments = [...allPayments].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
   // console.log(allPayments);
   return (
     <>
@@ -35,21 +35,24 @@ const AllPayments = () => {
                   <th>SL No.</th>
                   <th>Tranx Id</th>
                   <th>Paid By</th>
+                  <th>Payment For</th>
                   <th>Amount</th>
                 </tr>
               </thead>
               <tbody>
-                {latestPayments.map((payment, i) => (
+                {sortedPayments.map((payment, i) => (
                   <tr key={payment._id}>
                     <th>{i + 1}</th>
                     <td className="capitalize">{payment.transectionId}</td>
                     <td className="lowercase">{payment.paidBy}</td>
+                    <td className="capitalize">{payment.paymentType}</td>
                     <td className="capitalize">{payment.amount}</td>
                   </tr>
                 ))}
               </tbody>
               <tbody>
                 <tr>
+                  <th></th>
                   <th></th>
                   <th></th>
                   <th>Total Payments:</th>

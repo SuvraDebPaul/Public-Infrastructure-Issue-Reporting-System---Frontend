@@ -1,65 +1,129 @@
-import React from "react";
+import React, { useState } from "react";
 import useAuth from "../../../Hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import LoadingSpinner from "../../../Util/LoadingSpinner";
+import toast from "react-hot-toast";
 
 const AssignedIssue = () => {
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] = useState("all");
+  const queryClient = useQueryClient();
   const { user, loading } = useAuth();
-  const { isLoading, data: allIssues = [] } = useQuery({
+  const {
+    isLoading,
+    data: allIssues = [],
+    refetch,
+  } = useQuery({
     queryKey: ["all-issues"],
     queryFn: async () => {
       const result = await axios(`${import.meta.env.VITE_API_URL}/issues`);
       return result.data;
     },
   });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, newStatus, userName }) => {
+      const res = await axios.put(
+        `${import.meta.env.VITE_API_URL}/issues/${id}`,
+        {
+          status: newStatus,
+          timeline: {
+            status: newStatus,
+            message: `Status changed to ${newStatus}`,
+            updatedBy: userName,
+          },
+        }
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["all-issues"]);
+      // refetch();
+      toast.success("Status Changed Successfully");
+    },
+  });
+
   if (isLoading || loading) return <LoadingSpinner />;
 
-  const assignedIssue = allIssues.filter(
-    (issue) => issue.assignedStaffId === user.displayName
-  );
+  const assignedIssue = allIssues
+    .map((issue) => ({
+      ...issue,
+      status: issue.status
+        ?.toLowerCase()
+        .trim()
+        .replace(/\u2013|\u2014/g, "-"),
+    }))
+    .filter((issue) => issue.assignedStaffId === user.displayName)
+    .sort((a, b) => (b.isBoosted === true) - (a.isBoosted === true));
+
+  const filteredIssues = assignedIssue.filter((issue) => {
+    const statusMatch = statusFilter === "all" || issue.status === statusFilter;
+    const priorityMatch =
+      priorityFilter === "all" || issue.priority === priorityFilter;
+    return statusMatch && priorityMatch;
+  });
+
+  const statusFlow = {
+    pending: ["in-progress"],
+    "in-progress": ["working"],
+    working: ["resolved"],
+    resolved: ["closed"],
+    closed: [],
+  };
 
   return (
     <div className="p-6">
       <h2 className="text-2xl mb-10 font-bold capitalize">Assigned Issue</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {assignedIssue.map((issue) => (
-          <div key={issue._id} className="card bg-base-100 w-96 shadow-sm">
-            <figure>
-              <img
-                className="w-full h-[350px]"
-                src={
-                  issue.image > 0
-                    ? issue.image
-                    : "https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-pic-design-profile-vector-png-image_40966566.jpg"
-                }
-                alt="Shoes"
-              />
-            </figure>
-            <div className="card-body">
-              <h2 className="card-title">
-                {issue.tittle}
-                <div
-                  className={`badge ${
-                    issue.priority === "High"
-                      ? "badge-secondary"
-                      : "badge-info text-white capitalize"
-                  } `}
-                >
-                  {issue.priority}
-                </div>
-              </h2>
-              <div className="card-actions justify-start">
-                <div className="badge badge-outline">
-                  Location: {issue.location}
-                </div>
-                <div className="badge badge-outline">
-                  Category: {issue.category}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="overflow-x-auto">
+        <table className="table table-zebra">
+          {/* head */}
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Location</th>
+              <th>Priority</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredIssues.map((issue, i) => (
+              <tr key={issue._id + "-" + issue.status}>
+                <th>{i + 1}</th>
+                <td>{issue.tittle}</td>
+                <td>{issue.category}</td>
+                <td>{issue.location}</td>
+                <td className="capitalize">{issue.priority}</td>
+                <td className="">
+                  <select
+                    className="select select-primary capitalize"
+                    value={issue.status}
+                    onChange={(e) =>
+                      updateStatusMutation.mutate({
+                        id: issue._id,
+                        newStatus: e.target.value,
+                        userName: user.displayName,
+                      })
+                    }
+                  >
+                    <option key={"current-" + issue.status} disabled>
+                      {issue.status}
+                    </option>
+
+                    {(statusFlow[issue.status] ?? []).map((next) => (
+                      <option key={next} value={next}>
+                        {next}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
