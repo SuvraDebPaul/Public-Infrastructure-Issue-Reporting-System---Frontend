@@ -1,9 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import LoadingSpinner from "../../../Util/LoadingSpinner";
+import axios from "axios";
+import useAuth from "../../../Hooks/useAuth";
 
 const ManageUsers = () => {
   const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
+  const { user: adminUser } = useAuth();
   const { isLoading: isUserLoading, data: allUser = [] } = useQuery({
     queryKey: ["all-user"],
     queryFn: async () => {
@@ -11,10 +15,23 @@ const ManageUsers = () => {
       return result.data;
     },
   });
-  const handleBlock = async (status) => {
-    if (status) {
-    }
-  };
+  const blockUnblockMutation = useMutation({
+    mutationFn: async ({ status, email }) => {
+      const updateUser = {
+        email,
+        isBlocked: !status,
+        blockedBy: adminUser.email,
+      };
+      const res = await axios.put(
+        `${import.meta.env.VITE_API_URL}/users/block`,
+        updateUser
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["all-user"]);
+    },
+  });
 
   if (isUserLoading) return <LoadingSpinner />;
   return (
@@ -50,6 +67,12 @@ const ManageUsers = () => {
                 </td>
                 <td>
                   <button
+                    onClick={() =>
+                      blockUnblockMutation.mutate({
+                        status: user.isBlocked,
+                        email: user.email,
+                      })
+                    }
                     className={`btn btn-sm ${
                       user.isBlocked ? "btn-success" : "btn-error"
                     }`}
