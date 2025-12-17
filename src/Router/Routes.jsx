@@ -21,6 +21,7 @@ import AdminAllIssues from "../Components/Dashboard/Admin/AdminAllIssues";
 import ManageUsers from "../Components/Dashboard/Admin/ManageUsers";
 import ManageStaff from "../Components/Dashboard/Admin/ManageStaff";
 import AllPayments from "../Components/Dashboard/Admin/AllPayments";
+import AssignedIssue from "../Components/Dashboard/Staff/AssignedIssue";
 
 export const router = createBrowserRouter([
   {
@@ -115,6 +116,14 @@ export const router = createBrowserRouter([
       {
         path: "/dashboard/all-payments",
         element: <AllPayments />,
+      },
+      {
+        path: "/dashboard/staff",
+        element: <StaffDashboard />,
+      },
+      {
+        path: "/dashboard/assigned-issues",
+        element: <AssignedIssue />,
       },
     ],
   },

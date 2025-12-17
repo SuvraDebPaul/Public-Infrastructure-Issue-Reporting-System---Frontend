@@ -66,6 +66,7 @@ const ReportIssue = () => {
       createdBy: user?.displayName,
       userEmail: user?.email,
       assignedStaffId: null,
+      assignedAt: null,
       timeline: [
         {
           status: "pending",

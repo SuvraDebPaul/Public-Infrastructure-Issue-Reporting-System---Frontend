@@ -5,9 +5,12 @@ import BoxContainer from "../../../Util/BoxContainer";
 import { FcOnlineSupport } from "react-icons/fc";
 import useAuth from "../../../Hooks/useAuth";
 import LoadingSpinner from "../../../Util/LoadingSpinner";
+import useRole from "../../../Hooks/useRole";
 
 const Navbar = () => {
-  const { user, logOut } = useAuth();
+  const { user, logOut, loading } = useAuth();
+  const [role, isRoleLoading] = useRole();
+  const userRole = role?.role;
   const allLinks = [
     {
       path: "/",
@@ -27,7 +30,7 @@ const Navbar = () => {
     },
   ];
 
-  const DashboardLinks = [];
+  if (isRoleLoading || loading) return <LoadingSpinner />;
   return (
     <section className="bg-base-100 shadow-sm">
       <BoxContainer>
@@ -111,14 +114,29 @@ const Navbar = () => {
                 className="menu menu-sm dropdown-content bg-base-100 rounded-box z-100 mt-3 w-52 p-2 shadow"
               >
                 <li>
-                  <a>User: {user ? user.displayName : "User Name"}</a>
+                  <a>User: {user ? user.displayName : "User Not Avaiable"}</a>
                 </li>
-
-                <li>
-                  <Link to="/dashboard" className="justify-between">
-                    Dashboard
-                  </Link>
-                </li>
+                {userRole === "citizen" && (
+                  <li>
+                    <Link to="/dashboard" className="justify-between">
+                      Dashboard
+                    </Link>
+                  </li>
+                )}
+                {userRole === "staff" && (
+                  <li>
+                    <Link to="/dashboard/staff" className="justify-between">
+                      Dashboard
+                    </Link>
+                  </li>
+                )}
+                {userRole === "admin" && (
+                  <li>
+                    <Link to="/dashboard/admin" className="justify-between">
+                      Dashboard
+                    </Link>
+                  </li>
+                )}
                 {user ? (
                   <li>
                     <a onClick={logOut}>Logout</a>

@@ -29,4 +29,8 @@ export const saveOrUpdateUser = async (userData) => {
   return data;
 };
 
-
+export function parseDate(dateString) {
+  if (!dateString) return null;
+  const d = new Date(dateString);
+  return isNaN(d.getTime()) ? null : d;
+}
