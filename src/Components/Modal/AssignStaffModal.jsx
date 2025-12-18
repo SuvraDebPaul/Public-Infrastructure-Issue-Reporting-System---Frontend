@@ -11,7 +11,7 @@ import useAuth from "../../Hooks/useAuth";
 
 const AssignStaffModal = ({ closeModal, isOpen, allUser, issueId }) => {
   const { user } = useAuth();
-  //   console.log(allUser, issueId);
+  console.log(allUser);
   const queryClient = useQueryClient();
   const { register, handleSubmit } = useForm();
 
@@ -37,7 +37,7 @@ const AssignStaffModal = ({ closeModal, isOpen, allUser, issueId }) => {
     const { assignStaff } = data;
     const updateStaff = {
       assignedStaffId: assignStaff,
-      assignedA: new Date(),
+      assignedAt: new Date(),
       timeline: {
         status: `Assigned`,
         message: `Staff Assigned to Mr. ${assignStaff}`,
@@ -46,7 +46,7 @@ const AssignStaffModal = ({ closeModal, isOpen, allUser, issueId }) => {
     };
     updateStaffMutation.mutate(updateStaff);
   };
-
+  const staffMember = allUser.filter((user) => user.role === "staff");
   return (
     <div>
       <Dialog
@@ -91,7 +91,7 @@ const AssignStaffModal = ({ closeModal, isOpen, allUser, issueId }) => {
                         {...register("assignStaff")}
                       >
                         <option disabled={true}>Assign Staff</option>
-                        {allUser.map((user) => (
+                        {staffMember.map((user) => (
                           <option key={user._id}>{user.name}</option>
                         ))}
                       </select>

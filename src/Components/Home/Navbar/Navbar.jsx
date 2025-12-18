@@ -11,6 +11,7 @@ const Navbar = () => {
   const { user, logOut, loading } = useAuth();
   const [role, isRoleLoading] = useRole();
   const userRole = role?.role;
+  console.log(userRole);
   const allLinks = [
     {
       path: "/",

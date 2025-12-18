@@ -15,6 +15,7 @@ import toast from "react-hot-toast";
 import { TbFidgetSpinner } from "react-icons/tb";
 import { FaGoogle } from "react-icons/fa";
 import { imageURL, saveOrUpdateUser } from "../../Utilities";
+import LoadingSpinner from "../../Util/LoadingSpinner";
 
 const Register = () => {
   const { createUser, updateUserProfile, signInWithGoogle, loading } =
@@ -30,7 +31,8 @@ const Register = () => {
   const from = location.state || "/";
 
   const onSubmit = async (data) => {
-    const { name, email, password, photo } = data;
+    let { name, email, password, photo } = data;
+    email = email.toLowerCase();
     //console.log({ name, email, password, photo });
 
     try {
@@ -43,12 +45,13 @@ const Register = () => {
       await updateUserProfile(name, photoURL);
       // console.log(result);
       //Save User in DB
-      await saveOrUpdateUser({
+      const result = await saveOrUpdateUser({
         name,
         email,
         image: photoURL,
       });
-
+      console.log(result);
+      await new Promise((resolve) => setTimeout(resolve, 200));
       navigate(from, { replace: true });
       toast.success("User Registration Successful");
     } catch (error) {
@@ -65,6 +68,7 @@ const Register = () => {
         email: user.email,
         image: user.photoURL,
       });
+      await new Promise((resolve) => setTimeout(resolve, 200));
       navigate(from, { replace: true });
       toast.success("User Registration With Google Successful");
     } catch (err) {
@@ -72,7 +76,7 @@ const Register = () => {
       toast.error(err?.message);
     }
   };
-
+  if (loading) return <LoadingSpinner />;
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100 pt-4 pb-10">
       <motion.div

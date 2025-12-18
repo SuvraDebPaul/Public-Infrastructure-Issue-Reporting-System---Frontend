@@ -23,8 +23,6 @@ const ReportIssue = () => {
     },
   });
 
-  console.log(myIssues.length);
-
   const { isLoading: isUserLoading, data: myUser = [] } = useQuery({
     queryKey: ["myUser", user.email],
     queryFn: async () => {
@@ -34,7 +32,6 @@ const ReportIssue = () => {
       return result.data;
     },
   });
-  console.log(myUser.isPremium);
   const {
     isLoading,
     mutateAsync,
@@ -87,7 +84,7 @@ const ReportIssue = () => {
       timeline: [
         {
           status: "pending",
-          message: "Issue created by user",
+          message: `Issue created by ${user.displayName}`,
           createdAt: new Date(),
           updatedBy: user?.email,
         },
@@ -217,7 +214,7 @@ const ReportIssue = () => {
                 : ""
             }`}
           >
-            {isLoading ? (
+            {isIssueLoading ? (
               <TbFidgetSpinner className="animate-spin m-auto" />
             ) : (
               "Submit Your Issue"

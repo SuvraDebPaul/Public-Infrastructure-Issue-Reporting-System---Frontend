@@ -23,6 +23,7 @@ const AddStaffModal = ({ isOpen, closeModal }) => {
     onSuccess: () => {
       queryClient.invalidateQueries(["all-user"]);
       toast.success("Staff Added Successful");
+
       closeModal();
     },
     onError: (error) => {
@@ -36,7 +37,8 @@ const AddStaffModal = ({ isOpen, closeModal }) => {
   } = useForm();
 
   const onSubmit = async (data) => {
-    const { name, email, password, photo } = data;
+    let { name, email, password, photo } = data;
+    email = email.toLowerCase();
     try {
       const photoURL = await imageURL(photo);
 

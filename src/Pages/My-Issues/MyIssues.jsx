@@ -16,8 +16,10 @@ import { GoDiscussionOutdated } from "react-icons/go";
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-700",
   "in-progress": "bg-blue-100 text-blue-700",
+  working: "bg-indigo-100 text-indigo-700",
   resolved: "bg-green-100 text-green-700",
   closed: "bg-gray-200 text-gray-700",
+  rejected: "bg-red-100 text-red-700",
 };
 
 /* ---------------------------------------------------
@@ -39,7 +41,15 @@ const MyIssues = () => {
       return result.data;
     },
   });
-
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/issues/categories`
+      );
+      return res.data;
+    },
+  });
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -100,27 +110,31 @@ const MyIssues = () => {
         <div className="flex gap-3">
           {/* Filter by Status */}
           <select
-            className="px-3 py-2 rounded-lg border"
+            className="select"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
             <option value="in-progress">In Progress</option>
+            <option value="working">Working</option>
             <option value="resolved">Resolved</option>
             <option value="closed">Closed</option>
+            <option value="rejected">Rejected</option>
           </select>
 
           {/* Filter by Category */}
           <select
-            className="px-3 py-2 rounded-lg border"
+            className="select"
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
           >
             <option value="all">All Categories</option>
-            <option value="Public Safety">Public Safety</option>
-            <option value="Sanitation">Sanitation</option>
-            <option value="Road Maintenance">Road Maintenance</option>
+            {categories.map((category, i) => (
+              <option key={i} value={category}>
+                {category}
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -130,11 +144,11 @@ const MyIssues = () => {
         {filteredIssues.map((issue) => (
           <div
             key={issue._id}
-            className="border rounded-xl shadow-sm bg-white overflow-hidden hover:shadow-md transition"
+            className="shadow-sm rounded-xl bg-white overflow-hidden transition p-2"
           >
             <img
               src={issue.image}
-              className="w-full h-40 object-cover"
+              className="w-full h-70 object-cover rounded-xl"
               alt="issue"
             />
             <div className="p-2 space-y-1">

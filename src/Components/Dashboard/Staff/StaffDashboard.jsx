@@ -30,10 +30,10 @@ const StaffDashboard = () => {
 
   const todaysTask = assignedIssue.filter((issue) => {
     const assignedDate = parseDate(issue.assignedAt); // convert stored value to Date
-    // console.log(assignedDate);
+    //console.log(assignedDate);
     if (!assignedDate) return false;
     const today = new Date();
-    // console.log(today);
+    //console.log(today);
 
     return (
       assignedDate.getDate() === today.getDate() &&
@@ -124,14 +124,24 @@ const StaffDashboard = () => {
                     <td>{task?.category}</td>
                     <td>{task?.location}</td>
                     <td>{task?.priority}</td>
-                    <td>{task.image > 0 ? task.image : ""}</td>
+                    <td>
+                      {task.image.length > 0 ? (
+                        <img
+                          className="w-12 h-8 rounded"
+                          src={task?.image}
+                          alt=""
+                        />
+                      ) : (
+                        ""
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </div>
-        <div className="flex flex-col md:flex-row gap-4 justify-between">
+        <div className="flex flex-col lg:flex-row gap-4 justify-between">
           <div className="bg-white p-4 rounded-xl shadow-sm">
             <h2 className="text-lg font-semibold mb-4">Issues by Priority</h2>
             <PieChart width={350} height={300}>

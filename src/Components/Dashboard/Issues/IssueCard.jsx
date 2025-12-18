@@ -10,7 +10,7 @@ const IssueCard = ({ issues }) => {
   const queryClient = useQueryClient();
   const upvoteMutation = useMutation({
     mutationFn: async ({ id, userEmail }) => {
-      console.log(id, userEmail);
+      //console.log(id, userEmail);
       return await axios.put(
         `${import.meta.env.VITE_API_URL}/issues/upvote/${id}`,
         { userEmail }
@@ -26,7 +26,7 @@ const IssueCard = ({ issues }) => {
     },
   });
   const handleUpvotes = async (issue) => {
-    console.log(issue._id);
+    //console.log(issue._id);
     upvoteMutation.mutate({ id: issue._id, userEmail: user.email });
   };
   return (
@@ -54,7 +54,9 @@ const IssueCard = ({ issues }) => {
             </div>
             <button
               onClick={() => handleUpvotes(issues)}
-              className="btn btn-sm btn-primary capitalize"
+              className={`btn btn-sm btn-primary capitalize ${
+                issues?.userEmail === user?.email ? "btn-disabled" : ""
+              }`}
             >
               <MdOutlineHowToVote size={18} /> {issues?.upvotes}
             </button>

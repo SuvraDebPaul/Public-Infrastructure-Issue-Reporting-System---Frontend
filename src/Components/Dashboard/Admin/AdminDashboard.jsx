@@ -23,7 +23,6 @@ import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 export default function AdminDashboard() {
   const axiosSecure = useAxiosSecure();
 
-
   const { isLoading, data: allIssues = [] } = useQuery({
     queryKey: ["all-issues"],
     queryFn: async () => {
@@ -95,8 +94,6 @@ export default function AdminDashboard() {
   const latestUsers = [...allUsers]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 6);
-
-
 
   return (
     <div className="p-6 space-y-6">

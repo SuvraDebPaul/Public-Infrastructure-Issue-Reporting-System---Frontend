@@ -122,7 +122,9 @@ const IssueDetails = () => {
               <CiEdit size={20} /> Edit
             </button>
             <button
-              className="btn btn-primary mx-5"
+              className={`btn btn-primary mx-5 ${
+                issue.status !== "pending" && "btn-disabled"
+              }`}
               onClick={() => {
                 Swal.fire({
                   title: "Are you sure?",
@@ -172,7 +174,7 @@ const IssueDetails = () => {
               </ul>
             </div>
             <ul className="steps steps-vertical -mt-5">
-              {[...issue.timeline] // copy array
+              {[...issue.timeline]
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // latest first
                 .map((entry, i) => (
                   <li key={i} data-content="✓" className="step step-primary">

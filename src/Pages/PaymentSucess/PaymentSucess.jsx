@@ -24,7 +24,9 @@ const PaymentSucess = () => {
           <FaMoneyCheckAlt size={100} color="green" />
           <h2 className="card-title text-3xl">Payment Received</h2>
           <div className="card-actions">
-            <Link className="btn btn-success">Go To Boost History</Link>
+            <Link to="/dashboard" className="btn btn-success">
+              Go To Dashboard
+            </Link>
           </div>
         </div>
       </div>
