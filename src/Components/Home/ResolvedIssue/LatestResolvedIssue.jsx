@@ -1,12 +1,24 @@
 import React from "react";
 import BoxContainer from "../../../Util/BoxContainer";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import LoadingSpinner from "../../../Util/LoadingSpinner";
+import IssueCard from "../../Dashboard/Issues/IssueCard";
+import { Link } from "react-router";
 
-const LatestResolvedIssue = ({ resolvedIssue }) => {
-  console.log(resolvedIssue);
-  const latestResolvedIssue = resolvedIssue.filter((issue) => {
-    return issue.upvotes > 40;
+const LatestResolvedIssue = () => {
+  const { isLoading, data: allIssues = [] } = useQuery({
+    queryKey: ["all-issues"],
+    queryFn: async () => {
+      const result = await axios(`${import.meta.env.VITE_API_URL}/issues`);
+      return result.data;
+    },
   });
-  console.log(latestResolvedIssue);
+  const resolvedIssues = allIssues
+    .filter((issue) => issue.status === "resolved")
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 6);
+  if (isLoading) return <LoadingSpinner />;
   return (
     <section className="bg-base-200">
       <BoxContainer className="py-10">
@@ -14,29 +26,15 @@ const LatestResolvedIssue = ({ resolvedIssue }) => {
           Latest Ressolved Issues
         </h2>
         <div className="grid grid-cols-3 gap-5">
-          {latestResolvedIssue.map((issue) => (
-            <div className="card bg-base-100 w-96 shadow-sm">
-              <figure>
-                <img
-                  className="w-full h-[350px]"
-                  src={issue.image}
-                  alt="Shoes"
-                />
-              </figure>
-              <div className="card-body">
-                <h2 className="card-title">
-                  {issue.title}
-                  <div className="badge badge-secondary">{issue.priority}</div>
-                </h2>
-                <div className="card-actions justify-start">
-                  <div className="badge badge-outline">{issue.location}</div>
-                  <div className="badge badge-outline">{issue.category}</div>
-                </div>
-              </div>
-            </div>
+          {resolvedIssues.map((issues) => (
+            <IssueCard key={issues._id} issues={issues} />
           ))}
         </div>
-        <button className="btn btn-primary my-10">All Issues</button>
+        <div className="flex items-center justify-center">
+          <Link to="/all-issues" className="btn btn-primary my-10">
+            All Issues
+          </Link>
+        </div>
       </BoxContainer>
     </section>
   );

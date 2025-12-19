@@ -22,6 +22,8 @@ import ManageUsers from "../Components/Dashboard/Admin/ManageUsers";
 import ManageStaff from "../Components/Dashboard/Admin/ManageStaff";
 import AllPayments from "../Components/Dashboard/Admin/AllPayments";
 import AssignedIssue from "../Components/Dashboard/Staff/AssignedIssue";
+import About from "../Pages/About/About";
+import Contact from "../Pages/Contact/Contact";
 
 export const router = createBrowserRouter([
   {
@@ -51,6 +53,14 @@ export const router = createBrowserRouter([
       {
         path: "payment/success",
         element: <PaymentSucess />,
+      },
+      {
+        path: "/about",
+        element: <About />,
+      },
+      {
+        path: "/contact",
+        element: <Contact />,
       },
     ],
   },
