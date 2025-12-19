@@ -11,6 +11,7 @@ import {
 } from "firebase/auth";
 import { app } from "../Firebase/firebase.config";
 import { AuthContext } from "../Contexts/AuthContext";
+import axios from "axios";
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
@@ -18,7 +19,6 @@ const googleProvider = new GoogleAuthProvider();
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const createUser = (email, password) => {
     setLoading(true);
     return createUserWithEmailAndPassword(auth, email, password);
@@ -57,6 +57,30 @@ const AuthProvider = ({ children }) => {
       return unsubscribe();
     };
   }, []);
+
+  //getting user.role
+  useEffect(() => {
+    if (!user?.email) return;
+    const fetchRole = async () => {
+      try {
+        const result = await axios.get(
+          `${import.meta.env.VITE_API_URL}/users/${user.email}`
+        );
+        const userRole = result.data?.role || "citizen";
+
+        // Merge role into user object
+        setUser((prev) => ({
+          ...prev,
+          role: userRole,
+        }));
+
+        console.log("CurrentUserRole -->", userRole);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchRole();
+  }, [user?.email]);
 
   const authInfo = {
     user,

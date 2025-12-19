@@ -2,11 +2,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { MdOutlineHowToVote } from "react-icons/md";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import useAuth from "../../../Hooks/useAuth";
 const IssueCard = ({ issues }) => {
   const { user } = useAuth();
   // console.log(issues.image.length);
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const upvoteMutation = useMutation({
     mutationFn: async ({ id, userEmail }) => {
@@ -26,7 +27,10 @@ const IssueCard = ({ issues }) => {
     },
   });
   const handleUpvotes = async (issue) => {
-    //console.log(issue._id);
+    if (!user) {
+      navigate("/auth/login", { state: { from: `/issues/${issue._id}` } });
+      return;
+    }
     upvoteMutation.mutate({ id: issue._id, userEmail: user.email });
   };
   return (

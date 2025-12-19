@@ -64,6 +64,12 @@ const All_Issues = () => {
   if (isLoading) return <LoadingSpinner />;
 
   const { issues = [], totalPages } = data;
+  //console.log(issues);
+  const sortedIssues = [...issues].sort((a, b) => {
+    if (a.priority === "High" && b.priority !== "High") return -1;
+    if (a.priority !== "High" && b.priority === "High") return 1;
+    return 0;
+  });
 
   return (
     <BoxContainer>
@@ -139,7 +145,7 @@ const All_Issues = () => {
 
       {/* Issues Grid */}
       <div className="grid grid-cols-3 gap-10">
-        {issues.map((issue) => (
+        {sortedIssues.map((issue) => (
           <IssueCard key={issue._id} issues={issue} />
         ))}
       </div>

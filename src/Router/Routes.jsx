@@ -43,7 +43,7 @@ export const router = createBrowserRouter([
       {
         path: "issues/:id",
         element: (
-          <PrivateRoutes>
+          <PrivateRoutes allowedRoles={["citizen", "admin", "staff"]}>
             <IssueDetails />
           </PrivateRoutes>
         ),
@@ -71,7 +71,7 @@ export const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: (
-      <PrivateRoutes>
+      <PrivateRoutes allowedRoles={["citizen", "admin", "staff"]}>
         <DashLayout />
       </PrivateRoutes>
     ),
@@ -79,51 +79,51 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Dashboard />,
+        element: <Dashboard allowedRoles={["citizen"]} />,
       },
       {
         path: "report-issue",
-        element: <ReportIssue />,
+        element: <ReportIssue allowedRoles={["citizen"]} />,
       },
       {
         path: "my-issues",
-        element: <MyIssues />,
+        element: <MyIssues allowedRoles={["citizen"]} />,
       },
       {
         path: "my-issues/:id",
-        element: <IssueDetails />,
+        element: <IssueDetails allowedRoles={["citizen"]} />,
       },
       {
         path: "profile",
-        element: <Profile />,
+        element: <Profile allowedRoles={["citizen", "admin", "staff"]} />,
       },
       {
         path: "/dashboard/admin",
-        element: <AdminDashboard />,
+        element: <AdminDashboard allowedRoles={["admin"]} />,
       },
       {
         path: "/dashboard/all-issues",
-        element: <AdminAllIssues />,
+        element: <AdminAllIssues allowedRoles={["admin"]} />,
       },
       {
         path: "/dashboard/manage-users",
-        element: <ManageUsers />,
+        element: <ManageUsers allowedRoles={["admin"]} />,
       },
       {
         path: "/dashboard/manage-staff",
-        element: <ManageStaff />,
+        element: <ManageStaff allowedRoles={["admin"]} />,
       },
       {
         path: "/dashboard/all-payments",
-        element: <AllPayments />,
+        element: <AllPayments allowedRoles={["admin"]} />,
       },
       {
         path: "/dashboard/staff",
-        element: <StaffDashboard />,
+        element: <StaffDashboard allowedRoles={["staff"]} />,
       },
       {
         path: "/dashboard/assigned-issues",
-        element: <AssignedIssue />,
+        element: <AssignedIssue allowedRoles={["staff"]} />,
       },
     ],
   },

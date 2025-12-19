@@ -2,10 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import LoadingSpinner from "../../../Util/LoadingSpinner";
 import { useState } from "react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import InvoicePDF from "../Shared/Invoice/InvoicePDF";
+import InvoiceModal from "../../Modal/InvoiceModal";
 
 const AllPayments = () => {
   const axiosSecure = useAxiosSecure();
-
+  const [selectedPayment, setSelectedPayment] = useState(null);
   const [paymentType, setPaymentType] = useState("");
   const [month, setMonth] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
@@ -96,6 +99,7 @@ const AllPayments = () => {
                   <th>Paid By</th>
                   <th>Payment For</th>
                   <th>Amount</th>
+                  <th>Invoice</th>
                 </tr>
               </thead>
 
@@ -107,6 +111,14 @@ const AllPayments = () => {
                     <td className="lowercase">{payment.paidBy}</td>
                     <td className="capitalize">{payment.paymentType}</td>
                     <td>{payment.amount}</td>
+                    <td>
+                      <button
+                        className="btn btn-sm btn-outline"
+                        onClick={() => setSelectedPayment(payment)}
+                      >
+                        View Invoice
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -124,6 +136,12 @@ const AllPayments = () => {
           </div>
         </div>
       </div>
+      {selectedPayment && (
+        <InvoiceModal
+          payment={selectedPayment}
+          onClose={() => setSelectedPayment(null)}
+        />
+      )}
     </>
   );
 };
