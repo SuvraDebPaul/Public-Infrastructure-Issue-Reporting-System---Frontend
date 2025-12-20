@@ -20,6 +20,3 @@ createRoot(document.getElementById("piirs")).render(
     </QueryClientProvider>
   </StrictMode>
 );
-
-// This code is for all users
-window.__TANSTACK_QUERY_CLIENT__ = queryClient;

@@ -35,8 +35,6 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
-        loader: () =>
-          fetch("/public/dummyIssues.json").then((res) => res.json()),
       },
       {
         path: "all-issues",
